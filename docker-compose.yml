@@ -1,0 +1,21 @@
+# SQL Server cho môi trường DEV (không dùng cho production)
+# Chạy:  docker compose up -d      |  Dừng: docker compose down
+# Mật khẩu SA lấy từ DB_PASSWORD trong file .env ở thư mục gốc (mặc định QLKho@2026)
+# (Máy Mac chip Apple Silicon: giữ nguyên dòng platform bên dưới và bật "Use Rosetta" trong Docker Desktop)
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    platform: linux/amd64
+    container_name: qlkho-sqlserver
+    restart: unless-stopped
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: "Developer"
+      MSSQL_SA_PASSWORD: ${DB_PASSWORD:-QLKho@2026}
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+
+volumes:
+  sqlserver_data:
