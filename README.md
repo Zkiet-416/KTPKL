@@ -36,7 +36,8 @@ cd frontend
 npm install
 npm run dev
 ```
-* **Giao diện Web:** `http://localhost:5173`
+* **Giao diện Web (trang đăng nhập):** `http://localhost:5173`
+* **Kiểm tra môi trường FE / BE / DB:** `http://localhost:5173/setup` (thấy 3 mục xanh là chạy đúng)
 
 ---
 
@@ -46,7 +47,7 @@ npm run dev
 quan-ly-kho-phu-kien/
 ├── backend/                  # NestJS API (Port 3000)
 │   ├── src/
-│   │   ├── common/            # Enum, DTO, Guard, Filter dùng chung
+│   │   ├── common/           # Enum, DTO, Guard, Filter dùng chung
 │   │   └── modules/          # auth, users, categories, products, suppliers,
 │   │                         # goods-receipts, goods-issues, statistics
 │   ├── database/             # Script SQL nộp kèm đồ án
@@ -60,11 +61,10 @@ quan-ly-kho-phu-kien/
 │   │   ├── layouts/          # AdminLayout, ManagerLayout, StaffLayout
 │   │   ├── components/       # layout/ & common/ (dùng chung)
 │   │   └── api/client.ts     # Axios wrapper chuẩn hóa
-├── docs/                     # Quy chuẩn làm việc nhóm & tài liệu báo cáo
+├── docs/                     # Quy chuẩn làm việc nhóm
 │   ├── git-convention.md     # Quy tắc nhánh & commit
 │   ├── naming-convention.md  # Tiêu chuẩn đặt tên Code, API & DB
-│   ├── checklist-review.md   # Tiêu chí review code trước khi merge
-│   └── troubleshooting.md    # Lỗi thường gặp
+│   └── checklist-review.md   # Tiêu chí review code trước khi merge
 ├── docker-compose.yml        # SQL Server container
 ├── .env.example              # Mẫu biến môi trường (BE + FE + Docker)
 └── README.md

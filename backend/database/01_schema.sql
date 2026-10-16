@@ -12,7 +12,7 @@
    - Dùng NVARCHAR cho chuỗi tiếng Việt.
    - Mỗi bảng có khóa chính, các cột thời gian: CreatedAt, UpdatedAt.
    - Thứ tự tạo bảng: bảng cha trước, bảng con (có FK) sau.
-   - Tên bảng/cột dùng tiếng Anh, thống nhất với entity trong backend/src/modules/*/entities
+   - Tên bảng/cột dùng tiếng Anh, thống nhất với entity trong thư mục entities của từng module trong backend/src/modules
    ============================================================ */
 USE QuanLyKhoPhuKien;
 GO

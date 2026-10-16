@@ -1,4 +1,4 @@
-import { createBrowserRouter } from 'react-router-dom';
+import { createBrowserRouter, Navigate } from 'react-router-dom';
 
 import AdminLayout from '@/layouts/AdminLayout';
 import ManagerLayout from '@/layouts/ManagerLayout';
@@ -29,8 +29,9 @@ import IssueCreatePage from '@/pages/staff/IssueCreatePage';
  * TODO (TV1 - tuần 2): bọc mỗi cổng bằng route guard kiểm tra đăng nhập + vai trò.
  */
 export const router = createBrowserRouter([
-  { path: '/', element: <HomePage /> },
-  { path: '/login', element: <LoginPage /> },
+  { path: '/', element: <LoginPage /> }, // trang đầu tiên: đăng nhập (không có đăng ký, Admin cấp tài khoản)
+  { path: '/login', element: <Navigate to="/" replace /> },
+  { path: '/setup', element: <HomePage /> }, // trang kiểm tra môi trường FE / BE / DB (dành cho dev)
   {
     path: '/admin',
     element: <AdminLayout />,

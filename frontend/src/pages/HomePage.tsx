@@ -16,7 +16,7 @@ function Badge({ ok, label }: { ok: boolean | null; label: string }) {
 
 /**
  * Trang kiểm tra môi trường (tuần 1): hiển thị FE / BE / DB đã chạy chưa.
- * Khi làm xong đăng nhập (TV1) có thể chuyển trang này về /setup hoặc xóa.
+ * Địa chỉ: /setup (trang đầu tiên của web là trang đăng nhập).
  */
 export default function HomePage() {
   const [state, setState] = useState<CheckState>({ phase: 'loading' });
@@ -84,7 +84,7 @@ export default function HomePage() {
           </Link>
         </div>
         <p className="mt-4 text-sm text-slate-500">
-          <Link to="/login" className="text-blue-600 hover:underline">
+          <Link to="/" className="text-blue-600 hover:underline">
             Trang đăng nhập
           </Link>{' '}
           ·{' '}
