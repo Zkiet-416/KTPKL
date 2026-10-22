@@ -1,0 +1,47 @@
+@startuml dfd-level1-admin
+title DFD mức 1 - Tiến trình 1.0 Quản trị hệ thống
+
+left to right direction
+skinparam shadowing false
+skinparam rectangle {
+  BackgroundColor #FFF2CC
+  BorderColor #BF9000
+}
+skinparam usecase {
+  BackgroundColor #DAE8FC
+  BorderColor #2F5597
+}
+skinparam database {
+  BackgroundColor #FFFFFF
+  BorderColor #000000
+}
+
+' ===== Tác nhân ngoài =====
+rectangle "Người dùng hệ thống\n(Admin, Quản lý kho,\nNhân viên kho)" as U
+rectangle "Admin" as A
+
+' ===== Tiến trình =====
+usecase "1.1\nĐăng nhập /\nđăng xuất" as P1
+usecase "1.2\nQuản lý\nngười dùng" as P2
+usecase "1.3\nPhân quyền" as P3
+
+' ===== Kho dữ liệu =====
+database "D1\nNgười dùng & vai trò" as D1
+
+' ===== 1.1 Đăng nhập / đăng xuất =====
+U --> P1 : Tên đăng nhập,\nmật khẩu
+P1 --> U : Kết quả đăng nhập (token, vai trò)\n/ thông báo lỗi
+D1 --> P1 : Tài khoản, mật khẩu băm,\nvai trò, trạng thái khóa
+
+' ===== 1.2 Quản lý người dùng =====
+A --> P2 : Thông tin người dùng\n(thêm, sửa, xóa/khóa,\nđặt lại mật khẩu)
+P2 --> A : Danh sách người dùng,\nkết quả thao tác
+P2 --> D1 : Tài khoản mới /\nđã sửa / đã khóa
+D1 --> P2 : Danh sách người dùng
+
+' ===== 1.3 Phân quyền =====
+A --> P3 : Người dùng cần phân quyền\nvà vai trò được gán
+P3 --> A : Kết quả phân quyền
+P3 --> D1 : Vai trò mới của\nngười dùng
+D1 --> P3 : Thông tin người dùng,\ndanh sách vai trò
+@enduml
