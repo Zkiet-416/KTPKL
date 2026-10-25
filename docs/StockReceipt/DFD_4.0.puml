@@ -1,0 +1,32 @@
+
+@startuml
+title DFD mức dưới đỉnh - 4.0 Quản lý nhập kho
+
+left to right direction
+skinparam shadowing false
+
+rectangle "Quản lý kho" as QLK
+
+usecase "4.1\nTra cứu và xem\nchi tiết phiếu nhập" as P41
+usecase "4.2\nXem lịch sử\nnhập kho" as P42
+usecase "4.3\nThống kê\nnhập kho" as P43
+
+database "D1\nPhiếu nhập kho\n(GoodsReceipts)" as D1
+database "D2\nChi tiết phiếu nhập kho\n(GoodsReceiptDetails)" as D2
+
+QLK --> P41 : Yêu cầu tra cứu
+D1 --> P41 : Thông tin phiếu nhập
+D2 --> P41 : Chi tiết phiếu nhập
+P41 --> QLK : Thông tin phiếu và lựa chọn in
+
+QLK --> P42 : Yêu cầu xem lịch sử
+D1 --> P42 : Danh sách phiếu theo thời gian
+D2 --> P42 : Chi tiết phiếu nhập
+P42 --> QLK : Danh sách lịch sử nhập kho
+
+QLK --> P43 : Yêu cầu thống kê
+D1 --> P43 : Phiếu nhập theo thời gian
+D2 --> P43 : Số lượng, thành tiền
+P43 --> QLK : Báo cáo thống kê nhập kho
+
+@enduml
