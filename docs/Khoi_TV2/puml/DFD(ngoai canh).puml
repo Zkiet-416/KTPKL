@@ -1,0 +1,23 @@
+@startuml DFD_Ngoai_Canh
+skinparam shadowing false
+
+rectangle "Quản lý kho" as Manager
+rectangle "Nhân viên kho" as Staff
+
+circle "0. HỆ THỐNG\nQUẢN LÝ KHO\n(Tổng quan & Sản phẩm)" as Process0
+
+Manager --> Process0 : Yêu cầu thống kê
+Manager --> Process0 : Thông tin loại SP
+Manager --> Process0 : Thông tin SP
+
+Process0 --> Manager : Báo cáo tồn kho,\nCảnh báo hết hàng
+Process0 --> Manager : Biểu đồ & số liệu doanh thu
+Process0 --> Manager : Kết quả thao tác
+
+Staff --> Process0 : Từ khóa tìm kiếm,\nTiêu chí sắp xếp
+Staff --> Process0 : Yêu cầu xem chi tiết SP
+
+Process0 --> Staff : Danh sách kết quả tìm kiếm
+Process0 --> Staff : Thông tin chi tiết\n& số lượng tồn
+
+@enduml

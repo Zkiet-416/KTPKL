@@ -1,0 +1,27 @@
+@startuml DFD_Level3_Revenue
+
+top to bottom direction
+skinparam shadowing false
+
+rectangle "Quản lý kho" as Manager
+
+circle "1.2.1\nDoanh thu\nTheo thời gian" as P121
+circle "1.2.2\nBiểu đồ\nDoanh thu" as P122
+
+database "D3\nĐơn hàng /\nDoanh thu\n(Orders / Sales)" as D3
+
+' ===== 1.2.1 DOANH THU THEO THỜI GIAN =====
+
+Manager --> P121 : Tiêu chí lọc thời gian\n(Ngày / Tháng / Năm)
+
+D3 --> P121 : Chi tiết đơn hàng\nvà doanh thu
+
+P121 --> Manager : Báo cáo doanh thu theo kỳ
+
+P121 --> P122 : Dữ liệu doanh thu\nđã tổng hợp
+
+' ===== 1.2.2 BIỂU ĐỒ DOANH THU =====
+
+P122 --> Manager : Dữ liệu trực quan hóa\nbiểu đồ doanh thu
+
+@enduml

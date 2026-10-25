@@ -1,0 +1,39 @@
+@startuml DFD_Level2_Product
+
+top to bottom direction
+skinparam shadowing false
+
+rectangle "Quản lý kho" as Manager
+rectangle "Nhân viên kho" as Staff
+
+circle "3.1\nCập nhật\nthông tin" as P31
+circle "3.2\nTra cứu &\nHiển thị" as P32
+
+database "D1\nDanh mục sản phẩm" as D1
+database "D2\nSản phẩm" as D2
+
+'=========================
+' 3.1 CẬP NHẬT THÔNG TIN
+'=========================
+
+Manager --> P31 : Thông tin sản phẩm\n(Thêm/Sửa/Xóa)
+
+D1 --> P31 : Thông tin danh mục sản phẩm
+
+P31 --> D2 : Dữ liệu sản phẩm cập nhật
+
+P31 --> Manager : Kết quả cập nhật
+
+'=========================
+' 3.2 TRA CỨU & HIỂN THỊ
+'=========================
+
+Staff --> P32 : Yêu cầu tìm kiếm\nSắp xếp\nXem chi tiết
+
+D2 --> P32 : Thông tin sản phẩm\nvà tồn kho
+
+D1 --> P32 : Thông tin danh mục liên kết
+
+P32 --> Staff : Danh sách kết quả\nvà chi tiết sản phẩm
+
+@enduml

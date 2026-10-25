@@ -1,0 +1,32 @@
+@startuml DFD_Level3_InventoryStatistics
+
+top to bottom direction
+skinparam shadowing false
+
+rectangle "Quản lý kho" as Manager
+
+circle "1.1.1\nXem tổng\nsản phẩm tồn" as P111
+circle "1.1.2\nCảnh báo\nsắp hết hàng" as P112
+
+database "D2\nSản phẩm" as D2
+
+'=========================
+' 1.1.1 XEM TỔNG SẢN PHẨM TỒN
+'=========================
+
+Manager --> P111 : Yêu cầu xem tổng tồn kho
+P111 --> Manager : Số liệu tổng tồn kho
+
+D2 --> P111 : Số lượng tồn kho sản phẩm
+
+'=========================
+' 1.1.2 CẢNH BÁO SẮP HẾT HÀNG
+'=========================
+
+Manager --> P112 : Yêu cầu kiểm tra ngưỡng tồn
+
+P112 --> Manager : Danh sách sản phẩm sắp hết
+
+D2 --> P112 : Số lượng tồn\nĐịnh mức an toàn
+
+@enduml

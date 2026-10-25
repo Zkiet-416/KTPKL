@@ -1,0 +1,32 @@
+@startuml DFD_Level2_Overview
+
+top to bottom direction
+skinparam shadowing false
+
+rectangle "Quản lý kho" as Manager
+
+circle "1.1\nThống kê\nTồn kho" as P11
+circle "1.2\nThống kê\nDoanh thu" as P12
+
+database "D2\nSản phẩm" as D2
+database "D3\nĐơn hàng /\nDoanh thu" as D3
+
+'=========================
+' 1.1 THỐNG KÊ TỒN KHO
+'=========================
+
+Manager --> P11 : Yêu cầu xem tồn kho
+P11 --> Manager : Báo cáo tồn kho\nvà cảnh báo
+
+D2 --> P11 : Dữ liệu tồn kho
+
+'=========================
+' 1.2 THỐNG KÊ DOANH THU
+'=========================
+
+Manager --> P12 : Yêu cầu thống kê doanh thu
+P12 --> Manager : Báo cáo và\nbiểu đồ doanh thu
+
+D3 --> P12 : Dữ liệu đơn hàng
+
+@enduml

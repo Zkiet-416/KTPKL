@@ -1,0 +1,47 @@
+@startuml DFD_3_2_ProductLookup
+
+top to bottom direction
+skinparam shadowing false
+
+rectangle "Nhân viên kho" as Staff
+
+circle "3.2.1\nTìm kiếm\ntheo tên" as P321
+circle "3.2.2\nSắp xếp\nsản phẩm" as P322
+circle "3.2.3\nXem chi tiết\nsản phẩm" as P323
+
+database "D1\nDanh mục sản phẩm" as D1
+database "D2\nSản phẩm" as D2
+
+'=========================
+' 3.2.1 TÌM KIẾM THEO TÊN
+'=========================
+
+Staff --> P321 : Từ khóa tìm kiếm\n(Tên sản phẩm)
+
+D2 --> P321 : Danh sách sản phẩm
+D1 --> P321 : Thông tin danh mục sản phẩm
+
+P321 --> Staff : Danh sách sản phẩm tìm thấy
+
+'=========================
+' 3.2.2 SẮP XẾP SẢN PHẨM
+'=========================
+
+Staff --> P322 : Tiêu chí sắp xếp\n(Giá / Tồn kho / Tên)
+
+D2 --> P322 : Danh sách sản phẩm
+
+P322 --> Staff : Danh sách sản phẩm đã sắp xếp
+
+'=========================
+' 3.2.3 XEM CHI TIẾT
+'=========================
+
+Staff --> P323 : Mã sản phẩm cần xem chi tiết
+
+D2 --> P323 : Thông tin sản phẩm
+D1 --> P323 : Thông tin loại sản phẩm
+
+P323 --> Staff : Thông tin chi tiết sản phẩm
+
+@enduml
