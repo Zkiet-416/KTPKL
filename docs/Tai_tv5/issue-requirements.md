@@ -99,3 +99,10 @@ Phân rã các chức năng nghiệp vụ của phân hệ Kho hàng:
 | `ProductID` | INT | FK | Nối với `Products(ProductID)` |
 | `Quantity` | INT | | Not Null, > 0 - Số lượng xuất hoặc nhập |
 | `UnitPrice` | DECIMAL(18,2) | | Not Null - Đơn giá tại thời điểm xuất/nhập |
+
+## 8. Phụ thuộc với phần của thành viên khác
+
+- **TV1 (Admin & Phân quyền):** Phụ thuộc vào hệ thống xác thực đăng nhập, JWT và phân quyền theo vai trò (`Roles`, `Users`) để kiểm soát quyền truy cập của nhân viên vào phân hệ kho hàng.
+- **TV2 (Quản lý Kho - Tổng quan & Sản phẩm):** Phụ thuộc chặt chẽ vào bảng dữ liệu `Products` và `Categories` để tra cứu danh sách sản phẩm, đơn giá và thực hiện cập nhật thay đổi số lượng tồn kho (`StockQuantity`) khi lập phiếu xuất/nhập.
+- **TV3 (Quản lý Kho - Nhà cung cấp & Thống kê):** Phối hợp liên kết dữ liệu với bảng `Suppliers` (Nhà cung cấp) trong các nghiệp vụ liên quan đến nguồn gốc hàng hóa nhập/xuất kho.
+- **TV4 (Quản lý Kho - Phiếu nhập kho):** Phối hợp đồng bộ quy trình kho hàng. Trong đó TV4 phụ trách phần lập và quản lý phiếu nhập kho (`GoodsReceipts`, `GoodsReceiptDetails`), còn TV5 phụ trách tra cứu hàng hóa và lập phiếu xuất/nhập kho (`GoodsIssues`, `GoodsIssueDetails`), đảm bảo kiểm soát chặt chẽ không để xảy ra tình trạng âm kho.
