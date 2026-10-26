@@ -1,0 +1,41 @@
+@startwbs functional-diagram
+title Sơ đồ chức năng - Hệ thống quản lý kho phụ kiện điện thoại
+
+<style>
+wbsDiagram {
+  node {
+    BackgroundColor #DDEBF7
+    LineColor #2F5597
+  }
+  rootNode {
+    BackgroundColor #1F3864
+    LineColor #1F3864
+    FontColor white
+  }
+}
+</style>
+
+* HỆ THỐNG QUẢN LÝ KHO PHỤ KIỆN ĐIỆN THOẠI
+** 1. Quản trị hệ thống
+*** 1.1 Đăng nhập / đăng xuất
+*** 1.2 Quản lý người dùng (thêm, sửa, xóa/khóa)
+*** 1.3 Phân quyền (gán vai trò)
+** 2. Quản lý sản phẩm
+*** 2.1 Quản lý loại sản phẩm
+*** 2.2 Quản lý sản phẩm (thêm, sửa, xóa)
+*** 2.3 Tìm kiếm, sắp xếp theo sản phẩm
+*** 2.4 Tổng quan (tồn kho, doanh thu)
+** 3. Quản lý nhà cung cấp
+*** 3.1 Quản lý nhà cung cấp (thêm, sửa, xóa)
+*** 3.2 Tìm kiếm, sắp xếp theo nhà cung cấp
+** 4. Quản lý nhập kho
+*** 4.1 Lập phiếu nhập kho (tồn kho tăng)
+*** 4.2 In phiếu nhập kho
+*** 4.3 Lưu trữ, xem lại phiếu nhập
+*** 4.4 Thống kê lịch sử nhập kho theo tháng / năm
+** 5. Tra cứu & xuất kho
+*** 5.1 Xem thông tin hàng hóa, số lượng tồn
+*** 5.2 Tìm kiếm hàng hóa
+*** 5.3 Lọc theo giá bán, tên sản phẩm
+*** 5.4 Lập phiếu xuất kho (tồn kho giảm)
+@endwbs
