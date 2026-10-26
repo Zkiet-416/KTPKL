@@ -1,0 +1,41 @@
+@startuml DFD_3.0
+title DFD mức 1 - Tiến trình 3.0 Quản lý nhà cung cấp
+
+left to right direction
+skinparam shadowing false
+skinparam rectangle {
+  BackgroundColor #FFF2CC
+  BorderColor #BF9000
+}
+skinparam usecase {
+  BackgroundColor #DAE8FC
+  BorderColor #2F5597
+}
+skinparam database {
+  BackgroundColor #FFFFFF
+  BorderColor #000000
+}
+
+' ===== Tác nhân ngoài =====
+rectangle "Quản lý kho" as QLK
+
+' ===== Tiến trình =====
+usecase "3.1\nQuản lý nhà cung cấp\n(thêm, sửa, xóa)" as P1
+usecase "3.2\nTìm kiếm, sắp xếp\nnhà cung cấp" as P2
+
+' ===== Kho dữ liệu =====
+database "D4\nNhà cung cấp" as D4
+database "D5\nPhiếu nhập kho" as D5
+
+' ===== 3.1 Quản lý nhà cung cấp =====
+QLK --> P1 : Thông tin nhà cung cấp\n(thêm, sửa, xóa)
+P1 --> QLK : Kết quả thao tác /\nthông báo lỗi
+P1 --> D4 : Nhà cung cấp mới / đã sửa /\nđã xóa (ngừng hợp tác)
+D4 --> P1 : Thông tin nhà cung cấp\nhiện tại
+D5 --> P1 : Phiếu nhập của\nnhà cung cấp
+
+' ===== 3.2 Tìm kiếm, sắp xếp nhà cung cấp =====
+QLK --> P2 : Từ khóa,\ntiêu chí sắp xếp
+D4 --> P2 : Danh sách nhà cung cấp
+P2 --> QLK : Danh sách nhà cung cấp\nđã tìm / sắp xếp
+@enduml

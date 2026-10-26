@@ -1,0 +1,25 @@
+// ERD phần nhà cung cấp (TV3) - mở bằng https://dbdiagram.io (Import -> DBML)
+// Quy ước: tên bảng/cột PascalCase tiếng Anh, khóa chính Id INT IDENTITY, thời gian DATETIME2.
+
+Table Suppliers {
+  Id int [pk, increment, note: 'Mã nhà cung cấp (khóa)']
+  Name nvarchar(150) [not null, unique, note: 'Tên nhà cung cấp, không trùng']
+  ContactName nvarchar(100) [null, note: 'Người liên hệ']
+  Phone varchar(20) [not null, note: 'Số điện thoại']
+  Email nvarchar(100) [null, note: 'Email liên hệ']
+  Address nvarchar(255) [null, note: 'Địa chỉ']
+  IsActive bit [not null, default: 1, note: '1 = đang hợp tác, 0 = ngừng hợp tác (dùng thay cho xóa khi đã có phiếu nhập)']
+  CreatedAt datetime2 [not null, note: 'Ngày tạo']
+  UpdatedAt datetime2 [null, note: 'Ngày cập nhật']
+
+  indexes {
+    Name [name: 'IX_Suppliers_Name']
+    Phone [name: 'IX_Suppliers_Phone']
+  }
+
+  Note: 'Nhà cung cấp hàng (kho dữ liệu D4)'
+}
+
+// Bảng của thành viên khác sẽ trỏ tới Suppliers.Id:
+//   GoodsReceipts.SupplierId > Suppliers.Id   (TV4 - phiếu nhập)
+// Một nhà cung cấp có nhiều phiếu nhập; mỗi phiếu nhập thuộc đúng một nhà cung cấp.
