@@ -1,0 +1,41 @@
+// ERD phần sản phẩm (TV2) - mở bằng https://dbdiagram.io (Import -> DBML)
+// Quy ước: tên bảng/cột PascalCase tiếng Anh, khóa chính Id INT IDENTITY, thời gian DATETIME2.
+
+Table Categories {
+  Id int [pk, increment, note: 'Mã loại sản phẩm']
+  Name nvarchar(100) [not null, unique, note: 'Tên loại: ốp lưng, cường lực, sạc, cáp, tai nghe...']
+  Description nvarchar(255) [null, note: 'Mô tả loại']
+  IsActive bit [not null, default: 1, note: '1 = đang dùng, 0 = ngừng dùng']
+  CreatedAt datetime2 [not null, note: 'Ngày tạo']
+  UpdatedAt datetime2 [null, note: 'Ngày cập nhật']
+
+  Note: 'Danh mục loại sản phẩm (kho dữ liệu D2)'
+}
+
+Table Products {
+  Id int [pk, increment, note: 'Mã sản phẩm (khóa)']
+  Code nvarchar(30) [not null, unique, note: 'Mã sản phẩm hiển thị, không trùng. Ví dụ OL-IP15-01']
+  Name nvarchar(200) [not null, note: 'Tên sản phẩm']
+  CategoryId int [not null, note: 'Loại sản phẩm (FK -> Categories.Id)']
+  Unit nvarchar(30) [not null, default: 'cái', note: 'Đơn vị tính: cái, bộ, chiếc...']
+  SalePrice decimal(18,2) [not null, note: 'Giá bán, phải > 0 (CK_Products_SalePrice)']
+  StockQuantity int [not null, default: 0, note: 'Số lượng tồn, >= 0 (CK_Products_StockQuantity). Chỉ đổi qua phiếu nhập / phiếu xuất']
+  Description nvarchar(500) [null, note: 'Mô tả sản phẩm']
+  IsActive bit [not null, default: 1, note: '1 = đang bán, 0 = ngừng bán (dùng thay cho xóa khi sản phẩm đã có phiếu)']
+  CreatedAt datetime2 [not null, note: 'Ngày tạo']
+  UpdatedAt datetime2 [null, note: 'Ngày cập nhật']
+
+  indexes {
+    CategoryId [name: 'IX_Products_CategoryId']
+    Name [name: 'IX_Products_Name']
+  }
+
+  Note: 'Sản phẩm và số lượng tồn kho (kho dữ liệu D3)'
+}
+
+// Một loại có nhiều sản phẩm; mỗi sản phẩm thuộc đúng một loại
+Ref FK_Products_Categories: Products.CategoryId > Categories.Id
+
+// Các bảng của thành viên khác sẽ trỏ tới Products.Id:
+//   GoodsReceiptDetails.ProductId > Products.Id   (TV4 - phiếu nhập)
+//   GoodsIssueDetails.ProductId   > Products.Id   (TV5 - phiếu xuất)
