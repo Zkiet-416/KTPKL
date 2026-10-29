@@ -1,0 +1,19 @@
+Table GoodsReceipts {
+  Id integer [primary key, increment]
+  ReceiptCode varchar(20) [not null, unique]
+  SupplierId integer [not null]
+  CreatedBy varchar(100) [not null]
+  CreatedAt datetime [not null]
+  TotalAmount decimal(18,2) [not null]
+  Note varchar(500)
+}
+
+Table GoodsReceiptDetails {
+  Id integer [primary key, increment]
+  GoodsReceiptId integer [not null, ref: > GoodsReceipts.Id]
+  ProductId integer [not null]
+  Unit varchar(30) [not null]
+  UnitPrice decimal(18,2) [not null]
+  Quantity decimal(12,2) [not null]
+  LineTotal decimal(18,2) [not null]
+}
