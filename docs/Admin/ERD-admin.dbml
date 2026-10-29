@@ -1,0 +1,38 @@
+// ERD phần người dùng & phân quyền (TV1) - mở bằng https://dbdiagram.io (Import -> DBML)
+// Quy ước: tên bảng/cột PascalCase tiếng Anh, khóa chính Id INT IDENTITY, thời gian DATETIME2.
+
+Table Roles {
+  Id int [pk, increment, note: 'Mã vai trò']
+  Code nvarchar(30) [not null, unique, note: 'ADMIN, WAREHOUSE_MANAGER, WAREHOUSE_STAFF']
+  Name nvarchar(100) [not null, note: 'Quản trị hệ thống, Quản lý kho, Nhân viên kho']
+  Description nvarchar(255) [null, note: 'Mô tả quyền hạn']
+
+  Note: 'Danh sách vai trò (kho dữ liệu D1)'
+}
+
+Table Users {
+  Id int [pk, increment, note: 'Mã người dùng']
+  Username nvarchar(50) [not null, unique, note: 'Tên đăng nhập, không trùng']
+  PasswordHash nvarchar(255) [not null, note: 'Mật khẩu đã băm (bcrypt)']
+  FullName nvarchar(100) [not null, note: 'Họ và tên']
+  Email nvarchar(100) [null, note: 'Email liên hệ']
+  Phone nvarchar(20) [null, note: 'Số điện thoại']
+  RoleId int [not null, note: 'Vai trò (FK -> Roles.Id)']
+  IsActive bit [not null, default: 1, note: '1 = hoạt động, 0 = bị khóa']
+  LastLoginAt datetime2 [null, note: 'Lần đăng nhập gần nhất']
+  CreatedAt datetime2 [not null, note: 'Ngày tạo']
+  UpdatedAt datetime2 [null, note: 'Ngày cập nhật']
+
+  indexes {
+    RoleId [name: 'IX_Users_RoleId']
+  }
+
+  Note: 'Tài khoản đăng nhập (kho dữ liệu D1)'
+}
+
+// Một vai trò có nhiều người dùng; mỗi người dùng có đúng một vai trò
+Ref FK_Users_Roles: Users.RoleId > Roles.Id
+
+// Bảng của thành viên khác sẽ trỏ tới Users.Id (người lập phiếu):
+//   GoodsReceipts.CreatedByUserId > Users.Id   (D5)
+//   GoodsIssues.CreatedByUserId   > Users.Id   (D6)

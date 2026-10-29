@@ -1,0 +1,34 @@
+@startuml
+title DFD mức 0 - Hệ thống Quản lý Kho Hàng
+
+left to right direction
+skinparam shadowing false
+skinparam rectangle {
+  BackgroundColor #FFF2CC
+  BorderColor #BF9000
+}
+skinparam usecase {
+  BackgroundColor #DAE8FC
+  BorderColor #2F5597
+}
+
+' ===== Tác nhân ngoài =====
+rectangle "Admin" as Admin
+rectangle "Quản lý kho" as QLK
+rectangle "Nhân viên kho" as NVK
+
+' ===== Tiến trình trung tâm =====
+usecase "0. Hệ thống Quản lý Kho Hàng" as SYS
+
+' ===== 1. ADMIN =====
+Admin --> SYS : Thông tin tài khoản, yêu cầu phân quyền
+SYS --> Admin : Danh sách người dùng, kết quả phân quyền
+
+' ===== 2, 3, 4. QUẢN LÝ KHO =====
+QLK --> SYS : Thông tin danh mục, sản phẩm\nThông tin nhà cung cấp\nYêu cầu thống kê nhập kho & doanh thu
+SYS --> QLK : Báo cáo tồn kho, doanh thu, lịch sử phiếu nhập\nDanh sách nhà cung cấp, sản phẩm
+
+' ===== 5. NHÂN VIÊN KHO =====
+NVK --> SYS : Yêu cầu tra cứu hàng hóa\nThông tin lập phiếu nhập kho, phiếu xuất kho
+SYS --> NVK : Danh sách hàng hóa, số lượng tồn\nKết quả lập phiếu (thông báo thành công / lỗi tồn kho)
+@enduml
