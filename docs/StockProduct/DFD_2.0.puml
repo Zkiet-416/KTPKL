@@ -21,28 +21,31 @@ rectangle "Quản lý kho" as QLK
 
 ' ===== Tiến trình =====
 usecase "2.1\nQuản lý\nloại sản phẩm" as P1
-usecase "2.2\nSản phẩm\n(thêm, sửa, xóa)" as P2
+usecase "2.2\nQuản lý sản phẩm\n(thêm, sửa, xóa)" as P2
 usecase "2.3\nTìm kiếm, sắp xếp\nsản phẩm" as P3
-usecase "2.4\nTổng quan" as P4
+usecase "2.4\nTổng quan\n(Tồn kho, Doanh thu)" as P4
 
 ' ===== Kho dữ liệu =====
-database "D2\nLoại sản phẩm" as D2
-database "D3\nSản phẩm" as D3
-database "D6\nPhiếu xuất kho" as D6
+database "Categories\n(Loại sản phẩm)" as D2
+database "Products\n(Sản phẩm)" as D3
+database "Phiếu nhập kho" as D5
+database "Phiếu xuất kho" as D6
 
 ' ===== 2.1 Quản lý loại sản phẩm =====
 QLK --> P1 : Thông tin loại sản phẩm\n(thêm, sửa, xóa)
 P1 --> QLK : Danh sách loại sản phẩm,\nkết quả thao tác
 P1 --> D2 : Loại sản phẩm mới /\nđã sửa / đã xóa
 D2 --> P1 : Danh sách loại sản phẩm
-D3 --> P1 : Sản phẩm đang thuộc loại
+D3 --> P1 : Kiểm tra sản phẩm\nthuộc loại
 
 ' ===== 2.2 Quản lý sản phẩm =====
 QLK --> P2 : Thông tin sản phẩm\n(thêm, sửa, xóa)
 P2 --> QLK : Kết quả thao tác /\nthông báo lỗi
-P2 --> D3 : Sản phẩm mới / đã sửa /\nđã xóa (ngừng bán)
+P2 --> D3 : Thêm, sửa, xóa\nsản phẩm
 D3 --> P2 : Thông tin sản phẩm hiện tại
 D2 --> P2 : Danh sách loại sản phẩm
+D5 --> P2 : Kiểm tra sản phẩm\ntrong phiếu nhập
+D6 --> P2 : Kiểm tra sản phẩm\ntrong phiếu xuất
 
 ' ===== 2.3 Tìm kiếm, sắp xếp sản phẩm =====
 QLK --> P3 : Từ khóa, loại sản phẩm,\ntiêu chí sắp xếp
