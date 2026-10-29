@@ -1,0 +1,44 @@
+// ERD phần kho hàng (TV5 - Quản lý Xuất / Nhập kho) - mở bằng https://dbdiagram.io (Import -> DBML)
+// Quy ước: tên bảng/cột PascalCase tiếng Anh, khóa chính Id INT IDENTITY, thời gian DATETIME2.
+
+Table GoodsIssues {
+  Id int [pk, increment, note: 'Mã phiếu kho (khóa chính)']
+  Code nvarchar(30) [not null, unique, note: 'Mã phiếu hiển thị, không trùng. Ví dụ: PN-20261026-01, PX-20261026-01']
+  IssueType nvarchar(10) [not null, note: 'Loại phiếu: NHAP (Nhập kho) hoặc XUAT (Xuất kho)']
+  IssueDate datetime2 [not null, note: 'Ngày giờ lập phiếu']
+  CreatedByUserId int [not null, note: 'Mã nhân viên kho lập phiếu']
+  Note nvarchar(500) [null, note: 'Ghi chú / lý do nhập hoặc xuất kho']
+  CreatedAt datetime2 [not null, note: 'Thời điểm tạo bản ghi']
+  UpdatedAt datetime2 [null, note: 'Thời điểm cập nhật bản ghi cuối cùng']
+
+  indexes {
+    Code [name: 'IX_GoodsIssues_Code']
+    IssueType [name: 'IX_GoodsIssues_IssueType']
+    IssueDate [name: 'IX_GoodsIssues_IssueDate']
+  }
+
+  Note: 'Thông tin chung phiếu xuất / nhập kho (kho dữ liệu D2)'
+}
+
+Table GoodsIssueDetails {
+  Id int [pk, increment, note: 'Mã chi tiết phiếu (khóa chính)']
+  GoodsIssueId int [not null, note: 'Mã phiếu kho liên kết (FK -> GoodsIssues.Id)']
+  ProductId int [not null, note: 'Mã sản phẩm giao dịch (FK -> Products.Id)']
+  Quantity int [not null, note: 'Số lượng xuất/nhập, bắt buộc > 0']
+  UnitPrice decimal(18,2) [not null, note: 'Đơn giá giao dịch tại thời điểm lập phiếu, >= 0']
+  Note nvarchar(255) [null, note: 'Ghi chú cho từng mặt hàng']
+
+  indexes {
+    GoodsIssueId [name: 'IX_GoodsIssueDetails_GoodsIssueId']
+    ProductId [name: 'IX_GoodsIssueDetails_ProductId']
+  }
+
+  Note: 'Danh sách chi tiết các sản phẩm thuộc phiếu xuất / nhập (kho dữ liệu D3)'
+}
+
+// Mối quan hệ giữa bảng Phiếu kho và Chi tiết phiếu kho
+// Một phiếu kho có nhiều dòng chi tiết; mỗi dòng chi tiết thuộc đúng một phiếu kho
+Ref FK_GoodsIssueDetails_GoodsIssues: GoodsIssueDetails.GoodsIssueId > GoodsIssues.Id
+
+// Khóa ngoại liên kết tới bảng Products của TV2:
+// GoodsIssueDetails.ProductId > Products.Id (Liên kết đến sản phẩm trong kho D3)

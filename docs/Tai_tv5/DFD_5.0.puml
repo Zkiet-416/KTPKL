@@ -1,0 +1,52 @@
+@startuml DFD_5.0
+title DFD mức 1 - Tiến trình 5.0 Phân hệ Kho hàng & Tra cứu / Xuất Nhập Kho
+
+left to right direction
+skinparam shadowing false
+skinparam rectangle {
+  BackgroundColor #FFF2CC
+  BorderColor #BF9000
+}
+skinparam usecase {
+  BackgroundColor #DAE8FC
+  BorderColor #2F5597
+}
+skinparam database {
+  BackgroundColor #FFFFFF
+  BorderColor #000000
+}
+
+' ===== Tác nhân ngoài =====
+rectangle "Nhân viên kho" as NVK
+
+' ===== Tiến trình =====
+usecase "5.1\nTra cứu & Lọc\nsản phẩm" as P1
+usecase "5.2\nLập phiếu\nnhập kho" as P2
+usecase "5.3\nLập phiếu\nxuất kho" as P3
+
+' ===== Kho dữ liệu =====
+database "D1\nProducts\n(Hàng hóa & Tồn)" as D1
+database "D2\nGoodsIssues\n(Thông tin phiếu)" as D2
+database "D3\nGoodsIssueDetails\n(Chi tiết phiếu)" as D3
+
+' ===== 5.1 Tra cứu & Lọc sản phẩm =====
+NVK --> P1 : Từ khóa tên,\nkhoảng giá bán
+D1 --> P1 : Danh sách sản phẩm\nvà tồn kho
+P1 --> NVK : Danh sách sản phẩm\nđã tìm kiếm / lọc
+
+' ===== 5.2 Lập phiếu nhập kho =====
+NVK --> P2 : Thông tin phiếu nhập,\nsố lượng nhập
+P2 --> D2 : Lưu thông tin chung phiếu nhập
+P2 --> D3 : Lưu chi tiết sản phẩm nhập
+P2 --> D1 : Cập nhật tăng số lượng tồn kho
+P2 --> NVK : Thông báo nhập kho thành công
+
+' ===== 5.3 Lập phiếu xuất kho =====
+NVK --> P3 : Thông tin phiếu xuất,\nsố lượng xuất
+P3 --> D1 : Kiểm tra số lượng tồn kho\n(chặn âm kho)
+D1 --> P3 : Trả về tồn kho hiện tại
+P3 --> D2 : Lưu thông tin chung phiếu xuất
+P3 --> D3 : Lưu chi tiết sản phẩm xuất
+P3 --> D1 : Cập nhật giảm số lượng tồn kho
+P3 --> NVK : Kết quả lập phiếu\n/ thông báo lỗi không đủ hàng
+@enduml
