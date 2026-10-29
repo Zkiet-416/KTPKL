@@ -1,5 +1,5 @@
 @startwbs functional-diagram
-title Sơ đồ chức năng - Hệ thống quản lý kho phụ kiện điện thoại
+title Sơ đồ chức năng (BFD) - Hệ thống quản lý kho phụ kiện điện thoại
 
 <style>
 wbsDiagram {
