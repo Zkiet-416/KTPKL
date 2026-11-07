@@ -13,21 +13,21 @@ import {
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 
-@Controller('api')
+@Controller('categories')
 export class CategoriesController {
   constructor(private readonly service: CategoriesService) {}
 
-  @Get('categories')
+  @Get()
   getAll() {
     return this.service.getAllCategories();
   }
 
-  @Post('categories')
+  @Post()
   create(@Body() dto: CreateCategoryDto) {
     return this.service.createCategory(dto);
   }
 
-  @Put('categories/:id')
+  @Put(':id')
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: CreateCategoryDto,
@@ -35,7 +35,7 @@ export class CategoriesController {
     return this.service.updateCategory(id, dto);
   }
 
-  @Delete('categories/:id')
+  @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   delete(@Param('id', ParseIntPipe) id: number): Promise<void> {
     return this.service.deleteCategory(id);

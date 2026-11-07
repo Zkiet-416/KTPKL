@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException, BadRequestException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Category } from './entities/category.entity.js';
@@ -45,6 +45,16 @@ export class CategoriesService {
     });
     if (!category) {
       throw new NotFoundException(`Không tìm thấy danh mục với id: ${id}`);
+    }
+
+    const products = await this.categoryRepository.query(
+      'SELECT TOP (1) 1 FROM dbo.Products WHERE CategoryId = @0',
+      [id],
+    );
+    if (products.length > 0) {
+      throw new BadRequestException(
+        'Không thể xóa danh mục đang có sản phẩm.',
+      );
     }
 
     category.isActive = false;
