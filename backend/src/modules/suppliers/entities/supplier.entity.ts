@@ -11,15 +11,14 @@ export class Supplier {
   @PrimaryGeneratedColumn({ name: 'Id', type: 'int' })
   id!: number;
 
-  @Column({ name: 'Name', type: 'nvarchar', length: 200, nullable: false })
+  @Column({ name: 'Name', type: 'nvarchar', length: 150, nullable: false }) // Khớp length 150 trong schema.sql
   name!: string;
 
   @Column({
     name: 'Phone',
     type: 'varchar',
     length: 20,
-    nullable: true,
-    unique: true,
+    nullable: true, // Bỏ unique: true để tránh lỗi index null trên SQL Server
   })
   phone?: string;
 
@@ -27,12 +26,11 @@ export class Supplier {
     name: 'Email',
     type: 'varchar',
     length: 100,
-    nullable: true,
-    unique: true,
+    nullable: true, // Bỏ unique: true
   })
   email?: string;
 
-  @Column({ name: 'Address', type: 'nvarchar', length: 500, nullable: true })
+  @Column({ name: 'Address', type: 'nvarchar', length: 255, nullable: true }) // Khớp length 255 trong schema.sql
   address?: string;
 
   @Column({ name: 'IsActive', type: 'bit', default: true })
