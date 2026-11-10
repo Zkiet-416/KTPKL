@@ -18,11 +18,15 @@ export class CategoriesService {
   }
 
   async createCategory(createCategoryDto: CreateCategoryDto): Promise<Category> {
-    const category = this.categoryRepository.create(createCategoryDto);
-    const existingCategory = await this.categoryRepository.findOneBy({ name: category.name }); //Tìm kiếm danh mục đã tồn tại với tên category.name
+    // Chỉ check trùng tên với các category đang hoạt động
+    const existingCategory = await this.categoryRepository.findOneBy({ 
+      name: createCategoryDto.name,
+      isActive: true, 
+    });
     if (existingCategory) {
-      throw new ConflictException(`Danh mục với tên "${category.name}" đã tồn tại.`);
+      throw new ConflictException(`Danh mục với tên "${createCategoryDto.name}" đã tồn tại.`);
     }
+    const category = this.categoryRepository.create(createCategoryDto);
     return this.categoryRepository.save(category);
   }
 
@@ -34,6 +38,18 @@ export class CategoriesService {
     if (!category) {
       throw new NotFoundException(`Không tìm thấy danh mục với id: ${id}`);
     }
+
+    // Nếu có update tên mới, check xem có bị trùng với danh mục khác không
+    if (updateCategoryDto.name && updateCategoryDto.name !== category.name) {
+      const duplicateName = await this.categoryRepository.findOneBy({
+        name: updateCategoryDto.name,
+        isActive: true,
+      });
+      if (duplicateName) {
+        throw new ConflictException(`Danh mục với tên "${updateCategoryDto.name}" đã tồn tại.`);
+      }
+    }
+
     Object.assign(category, updateCategoryDto);
     return this.categoryRepository.save(category);
   }
@@ -48,13 +64,11 @@ export class CategoriesService {
     }
 
     const products = await this.categoryRepository.query(
-      'SELECT TOP (1) 1 FROM dbo.Products WHERE CategoryId = @0',
+      'SELECT TOP (1) 1 FROM dbo.Products WHERE CategoryId = @0 AND IsActive = 1',
       [id],
     );
     if (products.length > 0) {
-      throw new BadRequestException(
-        'Không thể xóa danh mục đang có sản phẩm.',
-      );
+      throw new BadRequestException('Không thể xóa danh mục đang có sản phẩm hoạt động.');
     }
 
     category.isActive = false;

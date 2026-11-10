@@ -1,13 +1,11 @@
 import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { StatisticsController } from './statistics.controller';
 import { StatisticsService } from './statistics.service';
+import { Product } from '../products/entities/product.entity';
 
-/**
- * Phụ trách: TV2
- * Thống kê lịch sử nhập kho theo tháng / năm.
- * Khi tạo entity: khai báo TypeOrmModule.forFeature([TênEntity]) trong imports của module này.
- */
 @Module({
+  imports: [TypeOrmModule.forFeature([Product])],
   controllers: [StatisticsController],
   providers: [StatisticsService],
   exports: [StatisticsService],

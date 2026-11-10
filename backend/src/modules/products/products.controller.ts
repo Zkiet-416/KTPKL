@@ -1,4 +1,16 @@
-import { Controller, Get, Param, Post, Body, Put, Delete } from '@nestjs/common';
+import { 
+  Controller, 
+  Get, 
+  Param, 
+  Post, 
+  Body, 
+  Put, 
+  Delete, 
+  Query, 
+  ParseIntPipe, 
+  HttpCode, 
+  HttpStatus 
+} from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { ProductQueryDto } from './dto/product-query.dto';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -10,12 +22,12 @@ export class ProductsController {
   constructor(private readonly service: ProductsService) {}
 
   @Get()
-  getProducts(@Param('query') query: ProductQueryDto) {
+  getProducts(@Query() query: ProductQueryDto) { // Đã sửa @Param thành @Query
     return this.service.getProducts(query);
   }
 
   @Get(':id')
-  getProductById(@Param('id') id: number) {
+  getProductById(@Param('id', ParseIntPipe) id: number) { // Đã thêm ParseIntPipe
     return this.service.getProductById(id);
   }
 
@@ -25,12 +37,16 @@ export class ProductsController {
   }
 
   @Put(':id')
-  updateProduct(@Param('id') id: number, @Body() dto: CreateProductDto) {
+  updateProduct(
+    @Param('id', ParseIntPipe) id: number, 
+    @Body() dto: CreateProductDto
+  ) {
     return this.service.updateProduct(id, dto);
   }
 
   @Delete(':id')
-  deleteProduct(@Param('id') id: number) {
+  @HttpCode(HttpStatus.NO_CONTENT)
+  deleteProduct(@Param('id', ParseIntPipe) id: number): Promise<void> {
     return this.service.deleteProduct(id);
   }
 }
