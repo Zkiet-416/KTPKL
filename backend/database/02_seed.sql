@@ -66,3 +66,141 @@ IF NOT EXISTS (SELECT 1 FROM dbo.Products WHERE Code = 'CL-IP15-01')
     INSERT INTO dbo.Products (Code, Name, CategoryId, Unit, SalePrice, StockQuantity, Description) 
     VALUES ('CL-IP15-01', N'Kính cường lực iPhone 15 Pro Max full màn hình', 2, N'cái', 120000.00, 100, N'Độ cứng 9H chống trầy xước tuyệt đối');
 GO
+
+-- 6. Seed GoodsReceipts
+IF NOT EXISTS (SELECT 1 FROM dbo.GoodsReceipts WHERE ReceiptCode = 'PN001')
+    INSERT INTO dbo.GoodsReceipts
+        (ReceiptCode, SupplierId, CreatedByUserId, CreatedAt, TotalAmount, Note)
+    SELECT
+        'PN001',
+        s.Id,
+        u.Id,
+        '2026-11-08',
+        1600000.00,
+        N'Phiếu nhập hàng demo tháng 11/2026'
+    FROM dbo.Suppliers s
+    CROSS JOIN dbo.Users u
+    WHERE s.Name = N'Công ty TNHH Phụ Kiện Số VN'
+      AND u.Username = 'admin';
+
+IF NOT EXISTS (SELECT 1 FROM dbo.GoodsReceipts WHERE ReceiptCode = 'PN002')
+    INSERT INTO dbo.GoodsReceipts
+        (ReceiptCode, SupplierId, CreatedByUserId, CreatedAt, TotalAmount, Note)
+    SELECT
+        'PN002',
+        s.Id,
+        u.Id,
+        '2026-10-15',
+        1500000.00,
+        N'Phiếu nhập hàng demo tháng 10/2026'
+    FROM dbo.Suppliers s
+    CROSS JOIN dbo.Users u
+    WHERE s.Name = N'Công ty TNHH Phụ Kiện Số VN'
+      AND u.Username = 'admin';
+
+IF NOT EXISTS (SELECT 1 FROM dbo.GoodsReceipts WHERE ReceiptCode = 'PN003')
+    INSERT INTO dbo.GoodsReceipts
+        (ReceiptCode, SupplierId, CreatedByUserId, CreatedAt, TotalAmount, Note)
+    SELECT
+        'PN003',
+        s.Id,
+        u.Id,
+        '2025-11-20',
+        2900000.00,
+        N'Phiếu nhập hàng demo tháng 11/2025'
+    FROM dbo.Suppliers s
+    CROSS JOIN dbo.Users u
+    WHERE s.Name = N'Phân phối linh kiện Minh Phát'
+      AND u.Username = 'admin';
+GO
+
+-- 7. Seed GoodsReceiptDetails
+
+-- Chi tiết phiếu PN001
+IF NOT EXISTS (
+    SELECT 1
+    FROM dbo.GoodsReceiptDetails d
+    INNER JOIN dbo.GoodsReceipts r ON d.GoodsReceiptId = r.Id
+    INNER JOIN dbo.Products p ON d.ProductId = p.Id
+    WHERE r.ReceiptCode = 'PN001'
+      AND p.Code = 'OL-IP15-01'
+)
+    INSERT INTO dbo.GoodsReceiptDetails
+        (GoodsReceiptId, ProductId, Unit, UnitPrice, Quantity, LineTotal)
+    SELECT
+        r.Id, p.Id, N'cái', 100000.00, 10, 1000000.00
+    FROM dbo.GoodsReceipts r
+    CROSS JOIN dbo.Products p
+    WHERE r.ReceiptCode = 'PN001'
+      AND p.Code = 'OL-IP15-01';
+
+IF NOT EXISTS (
+    SELECT 1
+    FROM dbo.GoodsReceiptDetails d
+    INNER JOIN dbo.GoodsReceipts r ON d.GoodsReceiptId = r.Id
+    INNER JOIN dbo.Products p ON d.ProductId = p.Id
+    WHERE r.ReceiptCode = 'PN001'
+      AND p.Code = 'CL-IP15-01'
+)
+    INSERT INTO dbo.GoodsReceiptDetails
+        (GoodsReceiptId, ProductId, Unit, UnitPrice, Quantity, LineTotal)
+    SELECT
+        r.Id, p.Id, N'cái', 120000.00, 5, 600000.00
+    FROM dbo.GoodsReceipts r
+    CROSS JOIN dbo.Products p
+    WHERE r.ReceiptCode = 'PN001'
+      AND p.Code = 'CL-IP15-01';
+
+-- Chi tiết phiếu PN002
+IF NOT EXISTS (
+    SELECT 1
+    FROM dbo.GoodsReceiptDetails d
+    INNER JOIN dbo.GoodsReceipts r ON d.GoodsReceiptId = r.Id
+    INNER JOIN dbo.Products p ON d.ProductId = p.Id
+    WHERE r.ReceiptCode = 'PN002'
+      AND p.Code = 'OL-IP15-01'
+)
+    INSERT INTO dbo.GoodsReceiptDetails
+        (GoodsReceiptId, ProductId, Unit, UnitPrice, Quantity, LineTotal)
+    SELECT
+        r.Id, p.Id, N'cái', 100000.00, 15, 1500000.00
+    FROM dbo.GoodsReceipts r
+    CROSS JOIN dbo.Products p
+    WHERE r.ReceiptCode = 'PN002'
+      AND p.Code = 'OL-IP15-01';
+
+-- Chi tiết phiếu PN003
+IF NOT EXISTS (
+    SELECT 1
+    FROM dbo.GoodsReceiptDetails d
+    INNER JOIN dbo.GoodsReceipts r ON d.GoodsReceiptId = r.Id
+    INNER JOIN dbo.Products p ON d.ProductId = p.Id
+    WHERE r.ReceiptCode = 'PN003'
+      AND p.Code = 'CL-IP15-01'
+)
+    INSERT INTO dbo.GoodsReceiptDetails
+        (GoodsReceiptId, ProductId, Unit, UnitPrice, Quantity, LineTotal)
+    SELECT
+        r.Id, p.Id, N'cái', 120000.00, 20, 2400000.00
+    FROM dbo.GoodsReceipts r
+    CROSS JOIN dbo.Products p
+    WHERE r.ReceiptCode = 'PN003'
+      AND p.Code = 'CL-IP15-01';
+
+IF NOT EXISTS (
+    SELECT 1
+    FROM dbo.GoodsReceiptDetails d
+    INNER JOIN dbo.GoodsReceipts r ON d.GoodsReceiptId = r.Id
+    INNER JOIN dbo.Products p ON d.ProductId = p.Id
+    WHERE r.ReceiptCode = 'PN003'
+      AND p.Code = 'OL-IP15-01'
+)
+    INSERT INTO dbo.GoodsReceiptDetails
+        (GoodsReceiptId, ProductId, Unit, UnitPrice, Quantity, LineTotal)
+    SELECT
+        r.Id, p.Id, N'cái', 100000.00, 5, 500000.00
+    FROM dbo.GoodsReceipts r
+    CROSS JOIN dbo.Products p
+    WHERE r.ReceiptCode = 'PN003'
+      AND p.Code = 'OL-IP15-01';
+GO
