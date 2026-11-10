@@ -1,30 +1,32 @@
-import { IsString, IsEnum, IsArray, ValidateNested, IsNotEmpty, IsNumber, Min } from 'class-validator';
+// create-goods-issue.dto.ts
+import { IsString, IsEnum, IsArray, ValidateNested, IsNotEmpty, IsNumber, Min, IsInt } from 'class-validator';
 import { Type } from 'class-transformer';
 
 class GoodsIssueDetailDto {
   @IsNotEmpty()
-  @IsString()
-  goodsId: string;
+  @IsInt()
+  @Min(1)
+  goodsId!: number;
 
   @IsNotEmpty()
-  @IsNumber()
+  @IsInt()
   @Min(1, { message: 'Số lượng phải lớn hơn hoặc bằng 1' })
-  quantity: number;
+  quantity!: number;
 
   @IsNotEmpty()
   @IsNumber()
   @Min(0)
-  unitPrice: number;
+  unitPrice!: number;
 }
 
 export class CreateGoodsIssueDto {
   @IsNotEmpty()
   @IsString()
-  issueCode: string;
+  code!: string;
 
   @IsNotEmpty()
-  @IsEnum(['IMPORT', 'EXPORT'], { message: 'Loại phiếu phải là IMPORT hoặc EXPORT' })
-  type: 'IMPORT' | 'EXPORT';
+  @IsEnum(['NHAP', 'XUAT'], { message: 'Loại phiếu phải là NHAP hoặc XUAT' })
+  type!: 'NHAP' | 'XUAT';
 
   @IsString()
   note?: string;
@@ -32,5 +34,5 @@ export class CreateGoodsIssueDto {
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => GoodsIssueDetailDto)
-  details: GoodsIssueDetailDto[];
+  details!: GoodsIssueDetailDto[];
 }

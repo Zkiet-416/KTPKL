@@ -1,28 +1,34 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 
-@Entity('goods')
+@Entity({ name: 'Products', schema: 'dbo' })
 export class GoodsEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+  @PrimaryGeneratedColumn({ name: 'Id', type: 'int' })
+  id!: number;
 
-  @Column({ unique: true })
-  code: string;
+  @Column({ name: 'Code', type: 'nvarchar', length: 30, unique: true })
+  code!: string;
 
-  @Column()
-  name: string;
+  @Column({ name: 'Name', type: 'nvarchar', length: 200 })
+  name!: string;
 
-  @Column({ type: 'decimal', precision: 12, scale: 2 })
-  sellingPrice: number;
+  @Column({ name: 'CategoryId', type: 'int' })
+  categoryId!: number;
 
-  @Column({ type: 'int', default: 0 })
-  stock: number;
+  @Column({ name: 'Unit', type: 'nvarchar', length: 30, default: 'cái' })
+  unit!: string;
 
-  @Column({ nullable: true })
-  unit: string;
+  @Column({ name: 'SalePrice', type: 'decimal', precision: 18, scale: 2 })
+  sellingPrice!: number;
 
-  @CreateDateColumn()
-  createdAt: Date;
+  @Column({ name: 'StockQuantity', type: 'int', default: 0 })
+  stock!: number;
 
-  @UpdateDateColumn()
-  updatedAt: Date;
+  @Column({ name: 'IsActive', type: 'bit', default: true })
+  isActive!: boolean;
+
+  @CreateDateColumn({ name: 'CreatedAt', type: 'datetime2' })
+  createdAt!: Date;
+
+  @UpdateDateColumn({ name: 'UpdatedAt', type: 'datetime2', nullable: true })
+  updatedAt!: Date | null;
 }

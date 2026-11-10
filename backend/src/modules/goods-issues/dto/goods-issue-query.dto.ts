@@ -1,3 +1,4 @@
+// goods-issue-query.dto.ts
 import { IsOptional, IsString, IsEnum } from 'class-validator';
 
 export class GoodsIssueQueryDto {
@@ -6,6 +7,6 @@ export class GoodsIssueQueryDto {
   search?: string;
 
   @IsOptional()
-  @IsEnum(['IMPORT', 'EXPORT'])
-  type?: 'IMPORT' | 'EXPORT';
+  @IsEnum(['NHAP', 'XUAT'])
+  type?: 'NHAP' | 'XUAT';
 }
