@@ -1,15 +1,23 @@
 import { Module } from '@nestjs/common';
-import { AuthController } from './auth.controller';
+import { JwtModule } from '@nestjs/jwt';
+import { PassportModule } from '@nestjs/passport';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthService } from './auth.service';
+import { AuthController } from './auth.controller';
+import { User } from '../users/entities/user.entity';
+import { JwtStrategy } from './strategies/jwt.strategy';
 
-/**
- * Phụ trách: TV1
- * Đăng nhập, JWT, phân quyền theo vai trò (guard + decorator @Roles).
- * Khi tạo entity: khai báo TypeOrmModule.forFeature([TênEntity]) trong imports của module này.
- */
 @Module({
+  imports: [
+    PassportModule,
+    JwtModule.register({
+      secret: process.env.JWT_SECRET || 'super-secret-key-warehouse',
+      signOptions: { expiresIn: '1d' }, // Token hết hạn sau 1 ngày -> trả 401
+    }),
+    TypeOrmModule.forFeature([User]),
+  ],
   controllers: [AuthController],
-  providers: [AuthService],
+  providers: [AuthService, JwtStrategy],
   exports: [AuthService],
 })
 export class AuthModule {}
