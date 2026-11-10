@@ -1,4 +1,4 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { StatisticsService } from './statistics.service';
 
@@ -7,5 +7,8 @@ import { StatisticsService } from './statistics.service';
 export class StatisticsController {
   constructor(private readonly service: StatisticsService) {}
 
-  // TODO (TV2): thêm các endpoint (@Get, @Post, @Patch, @Delete ...)
+  @Get('overview')
+  async getStatisticsOverview() {
+    return this.service.getStatisticsOverview();
+  }
 }
