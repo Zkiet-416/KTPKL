@@ -121,7 +121,7 @@ export class SuppliersService {
     return await this.supplierRepository.save(newSupplier);
   }
 
-  // 4. PUT /api/suppliers/:id (Kiểm tra tồn tại -> 404, trùng tên khác Id -> 409, cập nhật UpdatedAt)
+  // 4. PUT /api/suppliers/:id (Kiểm tra tồn tại -> 404, trùng tên khác Id -> 409)
   async update(
     id: number,
     updateSupplierDto: UpdateSupplierDto,
@@ -167,7 +167,6 @@ export class SuppliersService {
         phone: existingSupplier.phone,
         email: existingSupplier.email,
         address: existingSupplier.address,
-        updatedAt: () => 'SYSDATETIME()',
       })
       .where('id = :id', { id })
       .execute();
@@ -199,7 +198,6 @@ export class SuppliersService {
       .update(Supplier)
       .set({
         isActive: false,
-        updatedAt: () => 'SYSDATETIME()',
       })
       .where('id = :id', { id })
       .execute();

@@ -3,12 +3,12 @@ import { GoodsIssueDetail } from './goods-issue-detail.entity';
 import { User } from '../../users/entities/user.entity';
 
 @Entity({ name: 'GoodsIssues', schema: 'dbo' })
-export class GoodsIssueEntity {
+export class GoodsIssue {
   @PrimaryGeneratedColumn({ name: 'Id', type: 'int' })
   id!: number;
 
   @Column({ name: 'Code', type: 'nvarchar', length: 30, unique: true })
-  issueCode!: string;
+  code!: string;
 
   @Column({ name: 'IssueType', type: 'nvarchar', length: 10 })
   type!: 'NHAP' | 'XUAT';
@@ -19,7 +19,7 @@ export class GoodsIssueEntity {
   @Column({ name: 'CreatedByUserId', type: 'int' })
   createdByUserId!: number;
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, (user) => user.goodsIssues)
   @JoinColumn({ name: 'CreatedByUserId' })
   createdBy!: User;
 
@@ -35,3 +35,7 @@ export class GoodsIssueEntity {
   @UpdateDateColumn({ name: 'UpdatedAt', type: 'datetime2', nullable: true })
   updatedAt!: Date | null;
 }
+
+// Export alias để User Entity và các service nhận diện chuẩn xác
+export type GoodsIssueEntity = GoodsIssue;
+export const GoodsIssueEntity = GoodsIssue;

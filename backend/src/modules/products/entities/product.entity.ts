@@ -1,17 +1,12 @@
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { GoodsReceiptDetail } from '../../goods-receipts/entities/goods-receipt-detail.entity';
 
 @Entity({ name: 'Products', schema: 'dbo' })
 export class Product {
   @PrimaryGeneratedColumn({ name: 'Id', type: 'int' })
   id!: number;
 
-  @Column({ name: 'Code', type: 'nvarchar', length: 30, unique: true })
+  @Column({ name: 'Code', type: 'nvarchar', length: 50, unique: true })
   code!: string;
 
   @Column({ name: 'Name', type: 'nvarchar', length: 200 })
@@ -20,33 +15,24 @@ export class Product {
   @Column({ name: 'CategoryId', type: 'int' })
   categoryId!: number;
 
-  @Column({ name: 'Unit', type: 'nvarchar', length: 30, default: 'cái' })
+  @Column({ name: 'Unit', type: 'nvarchar', length: 50 })
   unit!: string;
 
-  @Column({ name: 'SalePrice', type: 'decimal', precision: 18, scale: 2 })
-  salePrice!: number;
+  @Column({ name: 'PurchasePrice', type: 'decimal', precision: 18, scale: 2 })
+  purchasePrice!: number;
+
+  @Column({ name: 'SellingPrice', type: 'decimal', precision: 18, scale: 2 })
+  sellingPrice!: number;
 
   @Column({ name: 'StockQuantity', type: 'int', default: 0 })
   stockQuantity!: number;
 
-  @Column({
-    name: 'Description',
-    type: 'nvarchar',
-    length: 500,
-    nullable: true,
-  })
-  description!: string | null;
+  @Column({ name: 'MinStock', type: 'int', default: 5 })
+  minStock!: number;
 
   @Column({ name: 'IsActive', type: 'bit', default: () => '1' })
   isActive!: boolean;
 
-  @CreateDateColumn({ name: 'CreatedAt', type: 'datetime2' })
-  createdAt!: Date;
-
-  @UpdateDateColumn({
-    name: 'UpdatedAt',
-    type: 'datetime2',
-    nullable: true,
-  })
-  updatedAt!: Date | null;
+  @OneToMany(() => GoodsReceiptDetail, (detail) => detail.product)
+  goodsReceiptDetails!: GoodsReceiptDetail[];
 }

@@ -8,7 +8,7 @@ import {
   JoinColumn,
   OneToMany,
 } from 'typeorm';
-import { RoleEntity } from './role.entity'; // Nếu bạn tách bảng Role riêng
+import { RoleEntity } from './role.entity';
 import { GoodsReceipt } from '../../goods-receipts/entities/goods-receipt.entity';
 import { GoodsIssueEntity } from '../../goods-issues/entities/goods-issue.entity';
 
@@ -54,6 +54,6 @@ export class User {
   @OneToMany(() => GoodsReceipt, (receipt) => receipt.createdBy)
   goodsReceipts!: GoodsReceipt[];
 
-  @OneToMany(() => GoodsIssueEntity, (issue) => issue.createdBy)
+  @OneToMany(() => GoodsIssueEntity, (issue: GoodsIssueEntity) => issue.createdBy)
   goodsIssues!: GoodsIssueEntity[];
 }

@@ -1,4 +1,3 @@
-
 import { Entity, PrimaryGeneratedColumn, Column, JoinColumn, ManyToOne } from 'typeorm';
 import { GoodsReceipt } from './goods-receipt.entity';
 import { Product } from '../../products/entities/product.entity';
@@ -45,7 +44,7 @@ export class GoodsReceiptDetail {
   @JoinColumn({ name: 'ProductId' })
   product!: Product;
 
-  @ManyToOne(() => GoodsReceipt, (receipt) => receipt.details,{onDelete:'CASCADE'})
+  @ManyToOne(() => GoodsReceipt, (receipt) => receipt.details, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'GoodsReceiptId' })
   goodsReceipt!: GoodsReceipt;
 }

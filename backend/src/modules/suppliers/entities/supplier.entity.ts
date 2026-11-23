@@ -1,53 +1,29 @@
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { GoodsReceipt } from '../../goods-receipts/entities/goods-receipt.entity';
 
-@Entity('Suppliers')
+@Entity({ name: 'Suppliers', schema: 'dbo' })
 export class Supplier {
   @PrimaryGeneratedColumn({ name: 'Id', type: 'int' })
   id!: number;
 
-  @Column({ name: 'Name', type: 'nvarchar', length: 150, nullable: false }) // Khớp length 150 trong schema.sql
+  @Column({ name: 'Name', type: 'nvarchar', length: 150 })
   name!: string;
 
-  @Column({
-    name: 'Phone',
-    type: 'varchar',
-    length: 20,
-    nullable: true, // Bỏ unique: true để tránh lỗi index null trên SQL Server
-  })
-  phone?: string;
+  @Column({ name: 'ContactName', type: 'nvarchar', length: 100, nullable: true })
+  contactName!: string | null;
 
-  @Column({
-    name: 'Email',
-    type: 'varchar',
-    length: 100,
-    nullable: true, // Bỏ unique: true
-  })
-  email?: string;
+  @Column({ name: 'Phone', type: 'nvarchar', length: 20, nullable: true })
+  phone!: string | null;
 
-  @Column({ name: 'Address', type: 'nvarchar', length: 255, nullable: true }) // Khớp length 255 trong schema.sql
-  address?: string;
+  @Column({ name: 'Email', type: 'nvarchar', length: 100, nullable: true })
+  email!: string | null;
 
-  @Column({ name: 'IsActive', type: 'bit', default: true })
+  @Column({ name: 'Address', type: 'nvarchar', length: 255, nullable: true })
+  address!: string | null;
+
+  @Column({ name: 'IsActive', type: 'bit', default: () => '1' })
   isActive!: boolean;
 
-  @CreateDateColumn({
-    name: 'CreatedAt',
-    type: 'datetime2',
-    default: () => 'SYSDATETIME()',
-  })
-  createdAt!: Date;
-
-  @UpdateDateColumn({
-    name: 'UpdatedAt',
-    type: 'datetime2',
-    nullable: true,
-    onUpdate: 'SYSDATETIME()',
-  })
-  updatedAt?: Date;
+  @OneToMany(() => GoodsReceipt, (receipt) => receipt.supplier)
+  goodsReceipts!: GoodsReceipt[];
 }

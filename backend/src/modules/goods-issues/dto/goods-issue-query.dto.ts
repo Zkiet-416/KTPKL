@@ -1,12 +1,8 @@
-// goods-issue-query.dto.ts
-import { IsOptional, IsString, IsEnum } from 'class-validator';
+import { IsEnum, IsOptional } from 'class-validator';
+import { PaginationQueryDto } from '../../../common/dto/pagination-query.dto';
 
-export class GoodsIssueQueryDto {
-  @IsOptional()
-  @IsString()
-  search?: string;
-
+export class GoodsIssueQueryDto extends PaginationQueryDto {
   @IsOptional()
   @IsEnum(['NHAP', 'XUAT'])
-  type?: 'NHAP' | 'XUAT';
+  issueType?: 'NHAP' | 'XUAT';
 }

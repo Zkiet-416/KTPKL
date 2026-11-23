@@ -1,9 +1,14 @@
-import { ConflictException, Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
-import { CreateProductDto } from './dto/create-product.dto.js';
-import { Product } from './entities/product.entity.js';
-import { Repository } from 'typeorm';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { CreateProductDto } from './dto/create-product.dto.js';
 import { ProductQueryDto } from './dto/product-query.dto.js';
+import { Product } from './entities/product.entity.js';
 
 @Injectable()
 export class ProductsService {
@@ -59,26 +64,44 @@ export class ProductsService {
   }
 
   async createProduct(createProductDto: CreateProductDto): Promise<Product> {
-    // Kiểm tra trùng mã sản phẩm (code) nếu entity có trường code
     if (createProductDto.code) {
-      const existingProduct = await this.productRepository.findOneBy({ code: createProductDto.code, isActive: true });
+      const existingProduct = await this.productRepository.findOneBy({
+        code: createProductDto.code,
+        isActive: true,
+      });
       if (existingProduct) {
-        throw new ConflictException(`Sản phẩm với mã "${createProductDto.code}" đã tồn tại.`);
+        throw new ConflictException(
+          `Sản phẩm với mã "${createProductDto.code}" đã tồn tại.`,
+        );
       }
     }
 
-    if (createProductDto.stockQuantity === undefined || createProductDto.stockQuantity < 0) {
-      throw new BadRequestException(`Số lượng tồn kho không hợp lệ: ${createProductDto.stockQuantity}`);
+    if (
+      createProductDto.stockQuantity === undefined ||
+      createProductDto.stockQuantity < 0
+    ) {
+      throw new BadRequestException(
+        `Số lượng tồn kho không hợp lệ: ${createProductDto.stockQuantity}`,
+      );
     }
-    if (createProductDto.salePrice <= 0 || createProductDto.salePrice === undefined) {
-      throw new BadRequestException(`Giá bán phải lớn hơn 0: ${createProductDto.salePrice}`);
+    if (createProductDto.salePrice === undefined || createProductDto.salePrice <= 0) {
+      throw new BadRequestException(
+        `Giá bán phải lớn hơn 0: ${createProductDto.salePrice}`,
+      );
     }
 
-    const product = this.productRepository.create(createProductDto);
+    const product = this.productRepository.create({
+      ...createProductDto,
+      sellingPrice: createProductDto.salePrice,
+      purchasePrice: 0,
+    });
     return this.productRepository.save(product);
   }
 
-  async updateProduct(id: number, updateProductDto: Partial<CreateProductDto>): Promise<Product> {
+  async updateProduct(
+    id: number,
+    updateProductDto: Partial<CreateProductDto>,
+  ): Promise<Product> {
     const product = await this.productRepository.findOne({
       where: { id, isActive: true },
     });
@@ -86,15 +109,28 @@ export class ProductsService {
       throw new NotFoundException(`Không tìm thấy sản phẩm với id: ${id}`);
     }
 
-    // Validate khi update nếu có truyền lên stock hoặc price
-    if (updateProductDto.stockQuantity !== undefined && updateProductDto.stockQuantity < 0) {
-      throw new BadRequestException(`Số lượng tồn kho không hợp lệ: ${updateProductDto.stockQuantity}`);
+    if (
+      updateProductDto.stockQuantity !== undefined &&
+      updateProductDto.stockQuantity < 0
+    ) {
+      throw new BadRequestException(
+        `Số lượng tồn kho không hợp lệ: ${updateProductDto.stockQuantity}`,
+      );
     }
-    if (updateProductDto.salePrice !== undefined && updateProductDto.salePrice <= 0) {
-      throw new BadRequestException(`Giá bán phải lớn hơn 0: ${updateProductDto.salePrice}`);
+    if (
+      updateProductDto.salePrice !== undefined &&
+      updateProductDto.salePrice <= 0
+    ) {
+      throw new BadRequestException(
+        `Giá bán phải lớn hơn 0: ${updateProductDto.salePrice}`,
+      );
     }
 
     Object.assign(product, updateProductDto);
+    if (updateProductDto.salePrice !== undefined) {
+      product.sellingPrice = updateProductDto.salePrice;
+    }
+
     return this.productRepository.save(product);
   }
 

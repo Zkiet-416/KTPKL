@@ -6,14 +6,19 @@ import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { User } from '../users/entities/user.entity';
 import { JwtStrategy } from './strategies/jwt.strategy';
+import { ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
     PassportModule,
-    JwtModule.register({
-      secret: process.env.JWT_SECRET || 'super-secret-key-warehouse',
-      signOptions: { expiresIn: '1d' }, // Token hết hạn sau 1 ngày -> trả 401
-    }),
+    JwtModule.registerAsync({
+    inject: [ConfigService],
+    useFactory: (configService: ConfigService) => ({
+    secret:
+      configService.get<string>('JWT_SECRET') || 'super-secret-key-warehouse',
+    signOptions: { expiresIn: configService.get('JWT_EXPIRES_IN') || '1d' },
+  }),
+}),
     TypeOrmModule.forFeature([User]),
   ],
   controllers: [AuthController],

@@ -19,9 +19,9 @@ export class UsersService {
 
   async findAll() {
     const users = await this.userRepository.find({
-      where: { isActive: true },
       relations: ['role'],
-      select: ['id', 'username', 'fullName', 'email', 'phone', 'createdAt', 'roleId'],
+      select: ['id', 'username', 'fullName', 'email', 'phone', 'isActive', 'createdAt', 'roleId'],
+      order: { id: 'ASC' },
     });
     return users;
   }
@@ -31,7 +31,7 @@ export class UsersService {
       where: { username: dto.username },
     });
     if (existing) {
-      throw new ConflictException(`Username "${dto.username}" đã tồn tại.`); // Trùng username -> 409
+      throw new ConflictException(`Username "${dto.username}" đã tồn tại.`);
     }
 
     const salt = await bcrypt.genSalt(10);
@@ -48,7 +48,7 @@ export class UsersService {
   }
 
   async update(id: number, dto: UpdateUserDto) {
-    const user = await this.userRepository.findOne({ where: { id, isActive: true } });
+    const user = await this.userRepository.findOne({ where: { id } });
     if (!user) {
       throw new NotFoundException(`Không tìm thấy người dùng ID: ${id}`);
     }
@@ -58,6 +58,7 @@ export class UsersService {
       if (existing) {
         throw new ConflictException(`Username "${dto.username}" đã tồn tại.`);
       }
+      user.username = dto.username;
     }
 
     if (dto.password) {
@@ -70,22 +71,27 @@ export class UsersService {
       email: dto.email ?? user.email,
       phone: dto.phone ?? user.phone,
       roleId: dto.roleId ?? user.roleId,
+      isActive: typeof dto.isActive === 'boolean' ? dto.isActive : user.isActive,
     });
 
-    return await this.userRepository.save(user);
+    const saved = await this.userRepository.save(user);
+    const { passwordHash: _, ...result } = saved;
+    return result;
   }
 
   async updateRole(id: number, roleId: number) {
-    const user = await this.userRepository.findOne({ where: { id, isActive: true } });
+    const user = await this.userRepository.findOne({ where: { id } });
     if (!user) {
-    throw new NotFoundException(`Không tìm thấy người dùng ID: ${id}`);
+      throw new NotFoundException(`Không tìm thấy người dùng ID: ${id}`);
     }
     user.roleId = roleId;
-    return await this.userRepository.save(user);
+    const saved = await this.userRepository.save(user);
+    const { passwordHash: _, ...result } = saved;
+    return result;
   }
 
   async remove(id: number) {
-    const user = await this.userRepository.findOne({ where: { id, isActive: true } });
+    const user = await this.userRepository.findOne({ where: { id } });
     if (!user) {
       throw new NotFoundException(`Không tìm thấy người dùng ID: ${id}`);
     }

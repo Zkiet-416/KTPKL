@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   ConflictException,
   Injectable,
   UnauthorizedException,
@@ -9,8 +8,8 @@ import { Repository } from 'typeorm';
 import { User } from '../users/entities/user.entity';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
-import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
@@ -28,7 +27,6 @@ export class AuthService {
       throw new ConflictException(`Username "${dto.username}" đã tồn tại.`);
     }
 
-    // Hash mật khẩu bằng bcrypt an toàn
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(dto.password, salt);
 
@@ -38,7 +36,7 @@ export class AuthService {
       fullName: dto.fullName,
       email: dto.email,
       phone: dto.phone,
-      roleId: dto.roleId ?? 3, // Mặc định là WAREHOUSE_STAFF (roleId = 3)
+      roleId: dto.roleId ?? 3,
       isActive: true,
     });
 
@@ -57,17 +55,19 @@ export class AuthService {
       throw new UnauthorizedException('Sai tên đăng nhập hoặc mật khẩu.');
     }
 
-    // So sánh mật khẩu băm
-    const isMatch = await bcrypt.compare(dto.password, user.passwordHash);
+    const isBcryptHash = /^\$2[aby]\$\d{2}\$/.test(user.passwordHash);
+    const isMatch = isBcryptHash
+      ? await bcrypt.compare(dto.password, user.passwordHash)
+      : dto.password === user.passwordHash;
+
     if (!isMatch) {
-      throw new UnauthorizedException('Sai tên đăng nhập hoặc mật khẩu.'); // Sai mật khẩu -> 401
+      throw new UnauthorizedException('Sai tên đăng nhập hoặc mật khẩu.');
     }
 
-    // Tạo JWT Payload
     const payload = {
       sub: user.id,
       username: user.username,
-      role: user.role?.Code,
+      role: user.role?.code,
     };
 
     return {
@@ -76,7 +76,7 @@ export class AuthService {
         id: user.id,
         username: user.username,
         fullName: user.fullName,
-        role: user.role?.Code,
+        role: user.role?.code,
       },
     };
   }

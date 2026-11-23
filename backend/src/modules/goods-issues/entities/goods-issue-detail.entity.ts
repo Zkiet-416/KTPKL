@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
-import { GoodsIssueEntity } from './goods-issue.entity';
-import { GoodsEntity } from '../goods.entity';
+import { GoodsIssue } from './goods-issue.entity';
+import { Product } from '../../products/entities/product.entity';
 
 @Entity({ name: 'GoodsIssueDetails', schema: 'dbo' })
 export class GoodsIssueDetail {
@@ -10,16 +10,16 @@ export class GoodsIssueDetail {
   @Column({ name: 'GoodsIssueId', type: 'int' })
   goodsIssueId!: number;
 
-  @ManyToOne(() => GoodsIssueEntity, (issue) => issue.details, { onDelete: 'CASCADE' })
+  @ManyToOne(() => GoodsIssue, (issue) => issue.details, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'GoodsIssueId' })
-  goodsIssue!: GoodsIssueEntity;
+  goodsIssue!: GoodsIssue;
 
   @Column({ name: 'ProductId', type: 'int' })
   goodsId!: number;
 
-  @ManyToOne(() => GoodsEntity)
+  @ManyToOne(() => Product)
   @JoinColumn({ name: 'ProductId' })
-  product!: GoodsEntity;
+  product!: Product;
 
   @Column({ name: 'Quantity', type: 'int' })
   quantity!: number;

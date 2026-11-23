@@ -8,6 +8,9 @@ import { DataSource, Repository } from 'typeorm';
 import { GoodsIssue } from './entities/goods-issue.entity';
 import { GoodsIssueDetail } from './entities/goods-issue-detail.entity';
 import { Product } from '../products/entities/product.entity';
+import { Supplier } from '../suppliers/entities/supplier.entity';
+import { GoodsReceipt } from '../goods-receipts/entities/goods-receipt.entity';
+import { GoodsReceiptDetail } from '../goods-receipts/entities/goods-receipt-detail.entity';
 import { CreateGoodsIssueDto } from './dto/create-goods-issue.dto';
 import { GoodsIssueQueryDto } from './dto/goods-issue-query.dto';
 
@@ -35,7 +38,7 @@ export class GoodsIssuesService {
       .leftJoinAndSelect('issue.createdBy', 'creator');
 
     if (queryDto.issueType) {
-      query.andWhere('issue.issueType = :issueType', {
+      query.andWhere('issue.type = :issueType', {
         issueType: queryDto.issueType,
       });
     }
@@ -77,29 +80,47 @@ export class GoodsIssuesService {
 
   async create(createDto: CreateGoodsIssueDto, userId: number) {
     const { code, issueType, note, details } = createDto;
+    const supplierIdFromDto = (createDto as CreateGoodsIssueDto & { supplierId?: number }).supplierId;
 
     if (!details || details.length === 0) {
       throw new BadRequestException('Chi tiết phiếu xuất/nhập kho không được để trống.');
     }
 
-    // Sử dụng Database Transaction để đảm bảo tính toàn vẹn dữ liệu tồn kho
     return await this.dataSource.transaction(async (manager) => {
-      // 1. Kiểm tra mã phiếu trùng
       const existing = await manager.findOne(GoodsIssue, { where: { code } });
       if (existing) {
         throw new BadRequestException(`Mã phiếu "${code}" đã tồn tại.`);
       }
 
-      // 2. Tạo và lưu GoodsIssue chính
       const goodsIssue = manager.create(GoodsIssue, {
         code,
-        issueType,
+        type: issueType,
         note,
         createdByUserId: userId,
       });
       const savedIssue = await manager.save(GoodsIssue, goodsIssue);
 
-      // 3. Xử lý chi tiết và cập nhật số lượng tồn kho sản phẩm trong bảng Products
+      let targetSupplierId: number | null = null;
+      if (issueType === 'NHAP') {
+        if (supplierIdFromDto) {
+          targetSupplierId = Number(supplierIdFromDto);
+        } else {
+          const firstSupplier = await manager.findOne(Supplier, {
+            where: { isActive: true },
+            order: { id: 'ASC' },
+          });
+          targetSupplierId = firstSupplier?.id ?? null;
+        }
+      }
+
+      let receiptTotalAmount = 0;
+      const receiptItems: {
+        product: Product;
+        quantity: number;
+        unitPrice: number;
+        lineTotal: number;
+      }[] = [];
+
       for (const item of details) {
         const product = await manager.findOne(Product, {
           where: { id: item.productId, isActive: true },
@@ -110,36 +131,68 @@ export class GoodsIssuesService {
         }
 
         if (issueType === 'XUAT') {
-          // Kiểm tra chặn xuất quá số lượng tồn kho -> Trả về 400 Bad Request
           if (product.stockQuantity < item.quantity) {
             throw new BadRequestException(
               `Sản phẩm "${product.name}" (Mã: ${product.code}) không đủ tồn kho. Tồn hiện tại: ${product.stockQuantity}, yêu cầu xuất: ${item.quantity}`,
             );
           }
-          // Giảm tồn kho khi xuất
           product.stockQuantity -= item.quantity;
         } else if (issueType === 'NHAP') {
-          // Tăng tồn kho khi nhập nội bộ
           product.stockQuantity += item.quantity;
+          const lineTotal = Number(item.quantity) * Number(item.unitPrice);
+          receiptTotalAmount += lineTotal;
+          receiptItems.push({
+            product,
+            quantity: Number(item.quantity),
+            unitPrice: Number(item.unitPrice),
+            lineTotal,
+          });
         } else {
-          throw new BadRequestException(`Loại phiếu không hợp lệ: ${issueType}. Chỉ chấp nhận 'NHAP' hoặc 'XUAT'.`);
+          throw new BadRequestException(
+            `Loại phiếu không hợp lệ: ${issueType}. Chỉ chấp nhận 'NHAP' hoặc 'XUAT'.`,
+          );
         }
 
-        // Lưu lại tồn kho mới của sản phẩm
         await manager.save(Product, product);
 
-        // Tạo chi tiết phiếu
         const detail = manager.create(GoodsIssueDetail, {
           goodsIssueId: savedIssue.id,
-          productId: item.productId,
+          goodsId: item.productId,
           quantity: item.quantity,
           unitPrice: item.unitPrice,
-          note: item.note,
         });
         await manager.save(GoodsIssueDetail, detail);
       }
 
-      // Trả về kết quả phiếu kèm chi tiết
+      if (issueType === 'NHAP' && targetSupplierId) {
+        const existingReceipt = await manager.findOne(GoodsReceipt, {
+          where: { receiptCode: code.slice(0, 20) },
+        });
+
+        if (!existingReceipt) {
+          const receipt = manager.create(GoodsReceipt, {
+            receiptCode: code.slice(0, 20),
+            supplierId: targetSupplierId,
+            createdByUserId: userId,
+            totalAmount: receiptTotalAmount.toFixed(2),
+            note: note ?? null,
+          });
+          const savedReceipt = await manager.save(GoodsReceipt, receipt);
+
+          for (const rItem of receiptItems) {
+            const rDetail = manager.create(GoodsReceiptDetail, {
+              goodsReceiptId: savedReceipt.id,
+              productId: rItem.product.id,
+              unit: rItem.product.unit || 'cái',
+              quantity: rItem.quantity.toFixed(2),
+              unitPrice: rItem.unitPrice.toFixed(2),
+              lineTotal: rItem.lineTotal.toFixed(2),
+            });
+            await manager.save(GoodsReceiptDetail, rDetail);
+          }
+        }
+      }
+
       return await manager.findOne(GoodsIssue, {
         where: { id: savedIssue.id },
         relations: ['createdBy', 'details', 'details.product'],

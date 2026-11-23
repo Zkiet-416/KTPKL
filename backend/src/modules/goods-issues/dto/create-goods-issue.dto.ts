@@ -1,12 +1,21 @@
-// create-goods-issue.dto.ts
-import { IsString, IsEnum, IsArray, ValidateNested, IsNotEmpty, IsNumber, Min, IsInt } from 'class-validator';
+import {
+  IsString,
+  IsEnum,
+  IsArray,
+  ValidateNested,
+  IsNotEmpty,
+  IsNumber,
+  Min,
+  IsInt,
+  IsOptional,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 
 class GoodsIssueDetailDto {
   @IsNotEmpty()
   @IsInt()
   @Min(1)
-  goodsId!: number;
+  productId!: number;
 
   @IsNotEmpty()
   @IsInt()
@@ -17,6 +26,10 @@ class GoodsIssueDetailDto {
   @IsNumber()
   @Min(0)
   unitPrice!: number;
+
+  @IsOptional()
+  @IsString()
+  note?: string;
 }
 
 export class CreateGoodsIssueDto {
@@ -26,8 +39,9 @@ export class CreateGoodsIssueDto {
 
   @IsNotEmpty()
   @IsEnum(['NHAP', 'XUAT'], { message: 'Loại phiếu phải là NHAP hoặc XUAT' })
-  type!: 'NHAP' | 'XUAT';
+  issueType!: 'NHAP' | 'XUAT';
 
+  @IsOptional()
   @IsString()
   note?: string;
 
