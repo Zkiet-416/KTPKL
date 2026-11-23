@@ -1,13 +1,11 @@
 import { Module } from '@nestjs/common';
-import { SuppliersController } from './suppliers.controller';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { SuppliersService } from './suppliers.service';
+import { SuppliersController } from './suppliers.controller';
+import { Supplier } from './entities/supplier.entity';
 
-/**
- * Phụ trách: TV4
- * Nhà cung cấp: CRUD, tìm kiếm, sắp xếp.
- * Khi tạo entity: khai báo TypeOrmModule.forFeature([TênEntity]) trong imports của module này.
- */
 @Module({
+  imports: [TypeOrmModule.forFeature([Supplier])],
   controllers: [SuppliersController],
   providers: [SuppliersService],
   exports: [SuppliersService],

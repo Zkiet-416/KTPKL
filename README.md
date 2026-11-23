@@ -1,4 +1,4 @@
-# 📦 Quản Lý Kho Phụ Kiện Điện Thoại – Hệ Thống Nhập Xuất Kho
+# 📦 Hệ thống quản Lý Kho Phụ Kiện Điện Thoại – Warehouse
 
 > **Môn học:** Phân tích thiết kế Hệ thống thông tin | **Học kỳ:** I – Năm học 2026–2027  
 > **Kiến trúc:** Monorepo gồm **NestJS** (Backend REST API) + **React + Vite + TailwindCSS** (Frontend) + **SQL Server** (Docker)

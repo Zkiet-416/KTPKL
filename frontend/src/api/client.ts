@@ -7,7 +7,6 @@ export const http = axios.create({
   timeout: 10000,
 });
 
-// TODO (TV1 - tuần 2): sau khi làm đăng nhập, token lưu ở localStorage (key: access_token)
 http.interceptors.request.use((config) => {
   const token = localStorage.getItem('access_token');
   if (token) {
@@ -15,3 +14,17 @@ http.interceptors.request.use((config) => {
   }
   return config;
 });
+
+http.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error?.response?.status === 401) {
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('current_user');
+      if (window.location.pathname !== '/' && window.location.pathname !== '/setup') {
+        window.location.href = '/';
+      }
+    }
+    return Promise.reject(error);
+  },
+);

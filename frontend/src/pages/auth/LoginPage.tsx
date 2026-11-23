@@ -1,21 +1,63 @@
 import { useState, type FormEvent } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { http } from '@/api/client';
+import { Role } from '@/types/role';
 
-/**
- * Trang đăng nhập chung (trang đầu tiên khi mở web) cho Admin / Quản lý kho / Nhân viên kho.
- * Không có đăng ký: tài khoản do Admin tạo và phân quyền trong cổng /admin.
- * TODO (TV1): gọi API /auth/login → lưu token → chuyển hướng theo vai trò:
- *   ADMIN -> /admin | WAREHOUSE_MANAGER -> /manager | WAREHOUSE_STAFF -> /staff
- */
+function getPortalPathByRole(role?: string): string {
+  if (role === Role.ADMIN) return '/admin';
+  if (role === Role.WAREHOUSE_MANAGER) return '/manager';
+  if (role === Role.WAREHOUSE_STAFF) return '/staff';
+  return '/admin';
+}
+
 export default function LoginPage() {
+  const navigate = useNavigate();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [notice, setNotice] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // TODO (TV1): thay bằng gọi API đăng nhập thật
-    setNotice(`Chức năng đăng nhập đang được phát triển (tài khoản nhập: ${username || '—'}).`);
-    setPassword('');
+    setLoading(true);
+    setError('');
+
+    try {
+      const res = await http.post('/auth/login', {
+        username: username.trim(),
+        password,
+      });
+
+      const data = res.data?.data ?? res.data;
+      const token: string | undefined = data?.access_token ?? data?.accessToken ?? data?.token;
+      const user = data?.user ?? data;
+      const role: string | undefined = user?.role ?? data?.role;
+
+      if (!token) {
+        setError('Đăng nhập thành công nhưng không tìm thấy token trả về từ máy chủ.');
+        return;
+      }
+
+      localStorage.setItem('access_token', token);
+      if (user) {
+        localStorage.setItem('current_user', JSON.stringify(user));
+      }
+
+      navigate(getPortalPathByRole(role), { replace: true });
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { data?: { message?: string | string[] } }; message?: string };
+      const msg = axiosErr?.response?.data?.message;
+      if (Array.isArray(msg)) {
+        setError(msg.join(', '));
+      } else if (typeof msg === 'string' && msg.trim()) {
+        setError(msg);
+      } else {
+        setError(axiosErr?.message || 'Tên đăng nhập hoặc mật khẩu không đúng.');
+      }
+      setPassword('');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -60,13 +102,14 @@ export default function LoginPage() {
             required
           />
 
-          {notice && <p className="mb-4 rounded-md bg-amber-50 p-3 text-sm text-amber-800">{notice}</p>}
+          {error && <p className="mb-4 rounded-md bg-red-50 p-3 text-sm text-red-700">{error}</p>}
 
           <button
             type="submit"
-            className="w-full rounded-lg bg-blue-700 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-800"
+            disabled={loading}
+            className="w-full rounded-lg bg-blue-700 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-800 disabled:opacity-60"
           >
-            Đăng nhập
+            {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
           </button>
 
           <p className="mt-5 text-center text-xs text-slate-500">

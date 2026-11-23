@@ -1,13 +1,12 @@
 import { Module } from '@nestjs/common';
-import { UsersController } from './users.controller';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersService } from './users.service';
+import { UsersController } from './users.controller';
+import { User } from './entities/user.entity';
+import { RoleEntity } from './entities/role.entity';
 
-/**
- * Phụ trách: TV1
- * Admin quản lý người dùng: thêm / sửa / xóa / khóa / phân quyền.
- * Khi tạo entity: khai báo TypeOrmModule.forFeature([TênEntity]) trong imports của module này.
- */
 @Module({
+  imports: [TypeOrmModule.forFeature([User, RoleEntity])],
   controllers: [UsersController],
   providers: [UsersService],
   exports: [UsersService],
