@@ -48,10 +48,31 @@ function getBaseUrl(): string {
 
 function getAuthHeaders(): Record<string, string> {
   const token =
+    localStorage.getItem('access_token') ||
     localStorage.getItem('accessToken') ||
-    localStorage.getItem('token') ||
-    localStorage.getItem('access_token');
+    localStorage.getItem('token');
   return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
+function handleUnauthorized(err: unknown): void {
+  if (!axios.isAxiosError(err) || err.response?.status !== 401) return;
+
+  const rawMsg = (err.response?.data as { message?: string | string[] } | undefined)?.message;
+  const msgText = Array.isArray(rawMsg) ? rawMsg.join(' ') : String(rawMsg ?? '');
+
+  localStorage.removeItem('access_token');
+  localStorage.removeItem('accessToken');
+  localStorage.removeItem('token');
+  localStorage.removeItem('current_user');
+  localStorage.removeItem('user');
+
+  if (msgText.toLowerCase().includes('vô hiệu hóa')) {
+    sessionStorage.setItem('auth_notice', 'Tài khoản đã bị vô hiệu hóa.');
+  }
+
+  if (window.location.pathname !== '/' && window.location.pathname !== '/setup') {
+    window.location.href = '/';
+  }
 }
 
 async function requestWithFallback<T>(path: string, params?: Record<string, unknown>): Promise<T> {
@@ -63,9 +84,15 @@ async function requestWithFallback<T>(path: string, params?: Record<string, unkn
     const res = await axios.get<T>(`${base}${path}`, { params, headers });
     return res.data;
   } catch (err) {
+    handleUnauthorized(err);
     if (axios.isAxiosError(err) && err.response?.status === 404) {
-      const res = await axios.get<T>(`${altBase}${path}`, { params, headers });
-      return res.data;
+      try {
+        const res = await axios.get<T>(`${altBase}${path}`, { params, headers });
+        return res.data;
+      } catch (altErr) {
+        handleUnauthorized(altErr);
+        throw altErr;
+      }
     }
     throw err;
   }

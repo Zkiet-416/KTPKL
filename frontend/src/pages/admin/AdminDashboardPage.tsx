@@ -14,7 +14,8 @@ export default function AdminDashboardPage() {
     usersApi
       .getAll()
       .then((data) => {
-        if (active) setUsers(data);
+        // Hệ thống chỉ có 1 Admin duy nhất và ẩn khỏi danh sách quản lý
+        if (active) setUsers(data.filter((u) => u.role !== Role.ADMIN));
       })
       .catch((err) => {
         if (active) setError(usersApi.getErrorMessage(err, 'Không tải được dữ liệu người dùng.'));
@@ -31,7 +32,6 @@ export default function AdminDashboardPage() {
     return {
       total: users.length,
       active: users.filter((u) => u.isActive).length,
-      admin: users.filter((u) => u.role === Role.ADMIN).length,
       manager: users.filter((u) => u.role === Role.WAREHOUSE_MANAGER).length,
       staff: users.filter((u) => u.role === Role.WAREHOUSE_STAFF).length,
     };
@@ -58,18 +58,13 @@ export default function AdminDashboardPage() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <div className="rounded-lg border border-slate-200 bg-white p-5">
           <p className="text-xs font-medium text-slate-500">Tổng người dùng</p>
           <p className="mt-2 text-3xl font-bold text-slate-800">{loading ? '...' : counts.total}</p>
           <p className="mt-1 text-xs text-emerald-700">
             Đang hoạt động: {loading ? '...' : counts.active}
           </p>
-        </div>
-
-        <div className="rounded-lg border border-slate-200 bg-white p-5">
-          <p className="text-xs font-medium text-slate-500">{ROLE_LABEL[Role.ADMIN]}</p>
-          <p className="mt-2 text-3xl font-bold text-slate-800">{loading ? '...' : counts.admin}</p>
         </div>
 
         <div className="rounded-lg border border-slate-200 bg-white p-5">

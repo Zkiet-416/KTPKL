@@ -1,7 +1,13 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { ROLE_TO_ROLE_ID, usersApi } from '@/api/users.api';
-import { Role, ROLE_LABEL } from '@/types/role';
+import { ROLE_LABEL, type Role } from '@/types/role';
 import type { CreateUserPayload, UpdateUserPayload, User } from '@/types/user';
+
+const MANAGER_ROLE = 'WAREHOUSE_MANAGER' as Role;
+const STAFF_ROLE = 'WAREHOUSE_STAFF' as Role;
+const ADMIN_ROLE = 'ADMIN' as Role;
+
+type AssignableRole = typeof MANAGER_ROLE | typeof STAFF_ROLE;
 
 interface FormState {
   username: string;
@@ -9,7 +15,7 @@ interface FormState {
   phone: string;
   fullName: string;
   password: string;
-  role: Role;
+  role: AssignableRole;
 }
 
 const INITIAL_FORM: FormState = {
@@ -18,14 +24,15 @@ const INITIAL_FORM: FormState = {
   phone: '',
   fullName: '',
   password: '',
-  role: Role.WAREHOUSE_STAFF,
+  role: STAFF_ROLE,
 };
 
-function getRoleBadgeClass(role: Role): string {
-  if (role === Role.ADMIN) {
-    return 'bg-indigo-50 text-indigo-700 ring-1 ring-inset ring-indigo-600/20';
-  }
-  if (role === Role.WAREHOUSE_MANAGER) {
+function toAssignableRole(role?: Role | string): AssignableRole {
+  return role === MANAGER_ROLE ? MANAGER_ROLE : STAFF_ROLE;
+}
+
+function getRoleBadgeClass(role: Role | string): string {
+  if (role === MANAGER_ROLE) {
     return 'bg-sky-50 text-sky-700 ring-1 ring-inset ring-sky-600/20';
   }
   return 'bg-slate-100 text-slate-700 ring-1 ring-inset ring-slate-600/20';
@@ -39,7 +46,7 @@ export default function UserManagementPage() {
   const [notice, setNotice] = useState<string | null>(null);
 
   const [search, setSearch] = useState('');
-  const [roleFilter, setRoleFilter] = useState<'ALL' | Role>('ALL');
+  const [roleFilter, setRoleFilter] = useState<'ALL' | AssignableRole>('ALL');
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
@@ -50,7 +57,8 @@ export default function UserManagementPage() {
     setError(null);
     try {
       const data = await usersApi.getAll();
-      setUsers(data);
+      // Ẩn tài khoản Admin duy nhất khỏi danh sách quản lý
+      setUsers(data.filter((u) => u.role !== ADMIN_ROLE));
     } catch (err) {
       setError(usersApi.getErrorMessage(err, 'Không thể tải danh sách người dùng.'));
     } finally {
@@ -65,6 +73,7 @@ export default function UserManagementPage() {
   const filteredUsers = useMemo(() => {
     const q = search.trim().toLowerCase();
     return users.filter((u) => {
+      if (u.role === ADMIN_ROLE) return false;
       const matchRole = roleFilter === 'ALL' || u.role === roleFilter;
       const matchQuery =
         !q ||
@@ -91,7 +100,7 @@ export default function UserManagementPage() {
       phone: user.phone ?? '',
       fullName: user.fullName,
       password: '',
-      role: user.role,
+      role: toAssignableRole(user.role),
     });
     setError(null);
     setModalOpen(true);
@@ -104,8 +113,10 @@ export default function UserManagementPage() {
     setNotice(null);
 
     try {
+      const targetRole = toAssignableRole(form.role);
+      const nextRoleId = ROLE_TO_ROLE_ID[targetRole];
+
       if (editingUser) {
-        const nextRoleId = ROLE_TO_ROLE_ID[form.role];
         const payload: UpdateUserPayload = {
           fullName: form.fullName.trim(),
           email: form.email.trim() || undefined,
@@ -116,13 +127,19 @@ export default function UserManagementPage() {
           payload.password = form.password.trim();
         }
         let updated = await usersApi.update(editingUser.id, payload);
-        if (form.role !== editingUser.role) {
+        if (targetRole !== editingUser.role) {
           updated = await usersApi.updateRole(editingUser.id, nextRoleId);
         }
+        const normalizedUpdated: User = {
+          ...editingUser,
+          ...updated,
+          role: targetRole,
+          roleId: nextRoleId,
+        };
         setUsers((prev) =>
-          prev.map((item) => (item.id === editingUser.id ? { ...item, ...updated } : item)),
+          prev.map((item) => (item.id === editingUser.id ? normalizedUpdated : item)),
         );
-        setNotice(`Đã cập nhật tài khoản "${updated.username}".`);
+        setNotice(`Đã cập nhật tài khoản "${normalizedUpdated.username}".`);
       } else {
         const payload: CreateUserPayload = {
           username: form.username.trim(),
@@ -130,11 +147,17 @@ export default function UserManagementPage() {
           phone: form.phone.trim() || undefined,
           fullName: form.fullName.trim(),
           password: form.password,
-          roleId: ROLE_TO_ROLE_ID[form.role],
+          roleId: nextRoleId,
         };
         const created = await usersApi.create(payload);
-        setUsers((prev) => [created, ...prev]);
-        setNotice(`Đã tạo tài khoản "${created.username}".`);
+        const normalizedCreated: User = {
+          ...created,
+          role: targetRole,
+          roleId: nextRoleId,
+          isActive: created.isActive ?? true,
+        };
+        setUsers((prev) => [normalizedCreated, ...prev]);
+        setNotice(`Đã tạo tài khoản "${normalizedCreated.username}".`);
       }
       setModalOpen(false);
     } catch (err) {
@@ -150,39 +173,28 @@ export default function UserManagementPage() {
     const nextActive = !user.isActive;
     try {
       const updated = await usersApi.update(user.id, { isActive: nextActive });
+      const actualActive =
+        typeof updated?.isActive === 'boolean' ? updated.isActive : nextActive;
+
       setUsers((prev) =>
         prev.map((item) =>
           item.id === user.id
             ? {
                 ...item,
                 ...updated,
-                isActive: typeof updated?.isActive === 'boolean' ? updated.isActive : nextActive,
+                isActive: actualActive,
               }
             : item,
         ),
       );
-      setNotice(
-        nextActive
-          ? `Đã mở khóa tài khoản "${user.username}".`
-          : `Đã khóa tài khoản "${user.username}".`,
-      );
+
+      if (!actualActive) {
+        setNotice(`Tài khoản "${user.username}" đã bị vô hiệu hóa.`);
+      } else {
+        setNotice(`Đã mở khóa tài khoản "${user.username}".`);
+      }
     } catch (err) {
       setError(usersApi.getErrorMessage(err, 'Không thể cập nhật trạng thái tài khoản.'));
-    }
-  };
-
-  const handleDelete = async (user: User) => {
-    const confirmed = window.confirm(`Xóa người dùng "${user.username}" (${user.fullName})?`);
-    if (!confirmed) return;
-
-    setError(null);
-    setNotice(null);
-    try {
-      await usersApi.remove(user.id);
-      setUsers((prev) => prev.filter((item) => item.id !== user.id));
-      setNotice(`Đã xóa người dùng "${user.username}".`);
-    } catch (err) {
-      setError(usersApi.getErrorMessage(err, 'Không thể xóa người dùng.'));
     }
   };
 
@@ -192,7 +204,7 @@ export default function UserManagementPage() {
         <div>
           <h2 className="text-2xl font-bold text-slate-800">Quản lý người dùng</h2>
           <p className="text-sm text-slate-500">
-            Cấp tài khoản, phân quyền và quản lý trạng thái truy cập hệ thống
+            Cấp tài khoản, phân quyền (Quản lý kho / Nhân viên kho) và quản lý trạng thái truy cập
           </p>
         </div>
         <button
@@ -225,13 +237,12 @@ export default function UserManagementPage() {
         />
         <select
           value={roleFilter}
-          onChange={(e) => setRoleFilter(e.target.value as 'ALL' | Role)}
+          onChange={(e) => setRoleFilter(e.target.value as 'ALL' | AssignableRole)}
           className="rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none"
         >
           <option value="ALL">Tất cả vai trò</option>
-          <option value={Role.ADMIN}>{ROLE_LABEL[Role.ADMIN]}</option>
-          <option value={Role.WAREHOUSE_MANAGER}>{ROLE_LABEL[Role.WAREHOUSE_MANAGER]}</option>
-          <option value={Role.WAREHOUSE_STAFF}>{ROLE_LABEL[Role.WAREHOUSE_STAFF]}</option>
+          <option value={MANAGER_ROLE}>{ROLE_LABEL[MANAGER_ROLE]}</option>
+          <option value={STAFF_ROLE}>{ROLE_LABEL[STAFF_ROLE]}</option>
         </select>
         <button
           type="button"
@@ -290,7 +301,7 @@ export default function UserManagementPage() {
                       </span>
                     ) : (
                       <span className="inline-flex rounded-full bg-rose-100 px-2.5 py-0.5 text-xs font-medium text-rose-800">
-                        Đã khóa
+                        Tài khoản đã bị vô hiệu hóa
                       </span>
                     )}
                   </td>
@@ -309,13 +320,6 @@ export default function UserManagementPage() {
                         className="rounded border border-amber-300 px-2.5 py-1 text-xs font-medium text-amber-800 hover:bg-amber-50"
                       >
                         {user.isActive ? 'Khóa' : 'Mở khóa'}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleDelete(user)}
-                        className="rounded border border-rose-300 px-2.5 py-1 text-xs font-medium text-rose-700 hover:bg-rose-50"
-                      >
-                        Xóa
                       </button>
                     </div>
                   </td>
@@ -397,14 +401,13 @@ export default function UserManagementPage() {
                 <label className="mb-1 block text-xs font-medium text-slate-700">Vai trò *</label>
                 <select
                   value={form.role}
-                  onChange={(e) => setForm((prev) => ({ ...prev, role: e.target.value as Role }))}
+                  onChange={(e) =>
+                    setForm((prev) => ({ ...prev, role: toAssignableRole(e.target.value) }))
+                  }
                   className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
                 >
-                  <option value={Role.ADMIN}>{ROLE_LABEL[Role.ADMIN]}</option>
-                  <option value={Role.WAREHOUSE_MANAGER}>
-                    {ROLE_LABEL[Role.WAREHOUSE_MANAGER]}
-                  </option>
-                  <option value={Role.WAREHOUSE_STAFF}>{ROLE_LABEL[Role.WAREHOUSE_STAFF]}</option>
+                  <option value={MANAGER_ROLE}>{ROLE_LABEL[MANAGER_ROLE]}</option>
+                  <option value={STAFF_ROLE}>{ROLE_LABEL[STAFF_ROLE]}</option>
                 </select>
               </div>
 

@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { http } from '@/api/client';
 import { Role } from '@/types/role';
@@ -16,11 +16,21 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [forcedLogoutNotice, setForcedLogoutNotice] = useState('');
+
+  useEffect(() => {
+    const notice = sessionStorage.getItem('auth_notice');
+    if (notice) {
+      setForcedLogoutNotice(notice);
+      sessionStorage.removeItem('auth_notice');
+    }
+  }, []);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setError('');
+    setForcedLogoutNotice('');
 
     try {
       const res = await http.post('/auth/login', {
@@ -61,13 +71,30 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 px-4">
+    <div className="relative flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 px-4">
+      {forcedLogoutNotice && (
+        <div
+          role="alert"
+          className="fixed top-4 left-1/2 z-50 flex w-[92%] max-w-md -translate-x-1/2 items-center justify-between gap-3 rounded-xl border border-red-200 bg-white px-4 py-3 text-sm font-medium text-red-700 shadow-lg"
+        >
+          <span>{forcedLogoutNotice}</span>
+          <button
+            type="button"
+            onClick={() => setForcedLogoutNotice('')}
+            aria-label="Đóng thông báo"
+            className="rounded px-1.5 py-0.5 text-xs text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
       <div className="w-full max-w-md">
         <div className="mb-6 text-center">
           <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-700 text-3xl shadow-md">
             📦
           </div>
-          <h1 className="text-2xl font-bold text-slate-800">Quản lý kho phụ kiện điện thoại</h1>
+          <h1 className="text-2xl font-bold text-slate-800">Warehouse</h1>
           <p className="mt-1 text-sm text-slate-500">Hệ thống quản lý nhập xuất kho</p>
         </div>
 

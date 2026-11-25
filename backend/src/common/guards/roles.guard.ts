@@ -1,4 +1,9 @@
-import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
+import {
+  CanActivate,
+  ExecutionContext,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { ROLES_KEY } from '../decorators/roles.decorator';
 import { Role } from '../enums/role.enum';
@@ -12,11 +17,16 @@ export class RolesGuard implements CanActivate {
       context.getHandler(),
       context.getClass(),
     ]);
-    if (!requiredRoles) {
-      return true; // Nếu endpoint không yêu cầu role cụ thể thì cho qua
+    if (!requiredRoles || requiredRoles.length === 0) {
+      return true;
     }
+
     const { user } = context.switchToHttp().getRequest();
-    // user.role chứa chuỗi role trả về từ JWT Strategy (VD: 'ADMIN')
-    return requiredRoles.some((role) => user?.role === role);
+    if (user && user.isActive === false) {
+      throw new UnauthorizedException('Tài khoản đã bị vô hiệu hóa.');
+    }
+
+    const userRole = String(user?.role ?? user?.role?.code ?? '').toUpperCase();
+    return requiredRoles.some((role) => String(role).toUpperCase() === userRole);
   }
 }

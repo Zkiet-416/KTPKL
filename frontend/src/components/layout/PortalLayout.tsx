@@ -1,4 +1,6 @@
+import { useEffect } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { http } from '@/api/client';
 
 export interface NavItem {
   to: string;
@@ -23,6 +25,37 @@ export default function PortalLayout({ title, subtitle, headerClass, navItems }:
     localStorage.removeItem('current_user');
     navigate('/', { replace: true });
   };
+
+  useEffect(() => {
+    const checkSessionActive = async () => {
+      const token = localStorage.getItem('access_token');
+      if (!token) return;
+
+      try {
+        await http.get('/products', { params: { page: 1, limit: 1 } });
+      } catch {
+        // Nếu trả 401 do tài khoản bị vô hiệu hóa, interceptor trong client.ts sẽ tự dọn storage và chuyển về '/'
+      }
+    };
+
+    checkSessionActive();
+    const timer = window.setInterval(checkSessionActive, 4000);
+
+    const handleVisibilityOrFocus = () => {
+      if (document.visibilityState === 'visible') {
+        checkSessionActive();
+      }
+    };
+
+    window.addEventListener('focus', handleVisibilityOrFocus);
+    document.addEventListener('visibilitychange', handleVisibilityOrFocus);
+
+    return () => {
+      window.clearInterval(timer);
+      window.removeEventListener('focus', handleVisibilityOrFocus);
+      document.removeEventListener('visibilitychange', handleVisibilityOrFocus);
+    };
+  }, []);
 
   return (
     <div className="flex h-screen w-full overflow-hidden bg-slate-50">

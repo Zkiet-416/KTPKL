@@ -20,15 +20,21 @@ export class AuthService {
   ) {}
 
   async register(dto: RegisterDto) {
-    const existing = await this.userRepository.findOne({
+    const existingUsers = await this.userRepository.find({
       where: { username: dto.username },
     });
-    if (existing) {
+    const isDuplicate = existingUsers.some(
+      (u) => u.username.toLowerCase() === dto.username.toLowerCase(),
+    );
+    if (isDuplicate) {
       throw new ConflictException(`Username "${dto.username}" đã tồn tại.`);
     }
 
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(dto.password, salt);
+
+    // Chỉ cho phép đăng ký vai trò mặc định không phải ADMIN (tránh tạo thêm ADMIN)
+    const safeRoleId = dto.roleId && dto.roleId !== 1 ? dto.roleId : 3;
 
     const user = this.userRepository.create({
       username: dto.username,
@@ -36,7 +42,7 @@ export class AuthService {
       fullName: dto.fullName,
       email: dto.email,
       phone: dto.phone,
-      roleId: dto.roleId ?? 3,
+      roleId: safeRoleId,
       isActive: true,
     });
 
@@ -47,11 +53,11 @@ export class AuthService {
 
   async login(dto: LoginDto) {
     const user = await this.userRepository.findOne({
-      where: { username: dto.username, isActive: true },
+      where: { username: dto.username },
       relations: ['role'],
     });
 
-    if (!user) {
+    if (!user || user.username !== dto.username) {
       throw new UnauthorizedException('Sai tên đăng nhập hoặc mật khẩu.');
     }
 
@@ -64,10 +70,19 @@ export class AuthService {
       throw new UnauthorizedException('Sai tên đăng nhập hoặc mật khẩu.');
     }
 
+    if (!user.isActive) {
+      throw new UnauthorizedException('Tài khoản đã bị vô hiệu hóa.');
+    }
+
+    const normalizedRole =
+      user.roleId === 1
+        ? 'ADMIN'
+        : String(user.role?.code ?? '').toUpperCase();
+
     const payload = {
       sub: user.id,
       username: user.username,
-      role: user.role?.code,
+      role: normalizedRole,
     };
 
     return {
@@ -76,7 +91,7 @@ export class AuthService {
         id: user.id,
         username: user.username,
         fullName: user.fullName,
-        role: user.role?.code,
+        role: normalizedRole,
       },
     };
   }
