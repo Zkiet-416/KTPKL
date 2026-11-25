@@ -301,7 +301,7 @@ export default function UserManagementPage() {
                       </span>
                     ) : (
                       <span className="inline-flex rounded-full bg-rose-100 px-2.5 py-0.5 text-xs font-medium text-rose-800">
-                        Tài khoản đã bị vô hiệu hóa
+                        Đã khóa
                       </span>
                     )}
                   </td>
