@@ -1,5 +1,14 @@
+// Trong create-user.dto.ts
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEmail, IsInt, IsNotEmpty, IsOptional, IsString, MinLength } from 'class-validator';
+import {
+  IsEmail,
+  IsIn,
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  MinLength,
+} from 'class-validator';
 
 export class CreateUserDto {
   @ApiProperty({ example: 'manager2' })
@@ -27,7 +36,11 @@ export class CreateUserDto {
   @IsString()
   phone?: string;
 
-  @ApiProperty({ example: 2, description: 'ID phân quyền Role' })
+  @ApiProperty({
+    example: 2,
+    description: '2: Quản lý kho, 3: Nhân viên kho',
+  })
   @IsInt()
+  @IsIn([2, 3])
   roleId!: number;
 }

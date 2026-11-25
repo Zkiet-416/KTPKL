@@ -67,15 +67,18 @@ export const usersApi = {
       : Array.isArray(res.data?.data)
         ? res.data.data
         : [];
-    return rawList.map((item: Record<string, unknown>) => normalizeUser(item));
+    return rawList
+      .map((item: Record<string, unknown>) => normalizeUser(item))
+      .filter((u: User) => u.role !== Role.ADMIN);
   },
 
   async create(payload: CreateUserPayload): Promise<User> {
+    const safeRoleId = payload.roleId === 1 ? 3 : Number(payload.roleId);
     const body: CreateUserPayload = {
       username: payload.username,
       password: payload.password,
       fullName: payload.fullName,
-      roleId: Number(payload.roleId),
+      roleId: safeRoleId,
       ...(payload.email ? { email: payload.email } : {}),
       ...(payload.phone ? { phone: payload.phone } : {}),
     };
@@ -90,7 +93,9 @@ export const usersApi = {
     if (payload.email !== undefined) body.email = payload.email;
     if (payload.phone !== undefined) body.phone = payload.phone;
     if (payload.password !== undefined) body.password = payload.password;
-    if (payload.roleId !== undefined) body.roleId = Number(payload.roleId);
+    if (payload.roleId !== undefined && payload.roleId !== 1) {
+      body.roleId = Number(payload.roleId);
+    }
     if (payload.isActive !== undefined) body.isActive = payload.isActive;
 
     const res = await http.put(`/users/${id}`, body);
@@ -99,13 +104,10 @@ export const usersApi = {
   },
 
   async updateRole(id: number | string, roleId: number): Promise<User> {
-    const res = await http.patch(`/users/${id}/role`, { roleId: Number(roleId) });
+    const safeRoleId = roleId === 1 ? 3 : Number(roleId);
+    const res = await http.patch(`/users/${id}/role`, { roleId: safeRoleId });
     const data = res.data?.data ?? res.data;
     return normalizeUser(data as Record<string, unknown>);
-  },
-
-  async remove(id: number | string): Promise<void> {
-    await http.delete(`/users/${id}`);
   },
 
   getErrorMessage: extractErrorMessage,

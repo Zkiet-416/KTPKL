@@ -1,7 +1,6 @@
 import {
   Body,
   Controller,
-  Delete,
   Get,
   Param,
   ParseIntPipe,
@@ -24,37 +23,51 @@ import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 @ApiBearerAuth()
 @Controller('users')
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Roles(Role.ADMIN) // Chỉ Admin mới có quyền quản lý users
+@Roles(Role.ADMIN)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
-  @ApiOperation({ summary: 'Lấy danh sách toàn bộ người dùng' })
+  @ApiOperation({
+    summary: 'Lấy danh sách người dùng (ẩn tài khoản Admin duy nhất)',
+  })
   findAll() {
     return this.usersService.findAll();
   }
 
   @Post()
-  @ApiOperation({ summary: 'Admin tạo mới người dùng' })
+  @ApiOperation({
+    summary: 'Tạo mới người dùng (chỉ vai trò Quản lý kho hoặc Nhân viên kho)',
+  })
   create(@Body() dto: CreateUserDto) {
     return this.usersService.create(dto);
   }
 
   @Put(':id')
-  @ApiOperation({ summary: 'Cập nhật thông tin người dùng' })
+  @ApiOperation({ summary: 'Cập nhật thông tin hoặc trạng thái người dùng' })
   update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateUserDto) {
     return this.usersService.update(id, dto);
   }
 
   @Patch(':id/role')
-  @ApiOperation({ summary: 'Phân quyền role mới cho người dùng' })
-  updateRole(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateRoleDto) {
+  @ApiOperation({
+    summary: 'Phân quyền cho người dùng (Quản lý kho / Nhân viên kho)',
+  })
+  updateRole(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UpdateRoleDto,
+  ) {
     return this.usersService.updateRole(id, dto.roleId);
   }
 
-  @Delete(':id')
-  @ApiOperation({ summary: 'Xóa mềm người dùng (IsActive = false)' })
-  remove(@Param('id', ParseIntPipe) id: number) {
-    return this.usersService.remove(id);
+  @Patch(':id/status')
+  @ApiOperation({
+    summary: 'Khóa hoặc mở khóa tài khoản người dùng',
+  })
+  toggleLock(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UpdateUserDto,
+  ) {
+    return this.usersService.toggleLock(id, Boolean(dto.isActive));
   }
 }
