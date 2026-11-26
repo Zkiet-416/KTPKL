@@ -19,9 +19,6 @@ Table Users {
   Phone nvarchar(20) [null, note: 'Số điện thoại']
   RoleId int [not null, note: 'Vai trò (FK -> Roles.Id)']
   IsActive bit [not null, default: 1, note: '1 = hoạt động, 0 = bị khóa']
-  LastLoginAt datetime2 [null, note: 'Lần đăng nhập gần nhất']
-  CreatedAt datetime2 [not null, note: 'Ngày tạo']
-  UpdatedAt datetime2 [null, note: 'Ngày cập nhật']
 
   indexes {
     RoleId [name: 'IX_Users_RoleId']

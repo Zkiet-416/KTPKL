@@ -48,7 +48,6 @@ export class UsersService {
         'email',
         'phone',
         'isActive',
-        'createdAt',
         'roleId',
       ],
       order: { id: 'ASC' },

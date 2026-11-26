@@ -41,9 +41,6 @@ BEGIN
         Phone NVARCHAR(20) NULL,
         RoleId INT NOT NULL,
         IsActive BIT NOT NULL CONSTRAINT DF_Users_IsActive DEFAULT(1),
-        LastLoginAt DATETIME2 NULL,
-        CreatedAt DATETIME2 NOT NULL CONSTRAINT DF_Users_CreatedAt DEFAULT(GETDATE()),
-        UpdatedAt DATETIME2 NULL,
         CONSTRAINT FK_Users_Roles FOREIGN KEY (RoleId) REFERENCES dbo.Roles(Id)
     );
     CREATE INDEX IX_Users_RoleId ON dbo.Users(RoleId);

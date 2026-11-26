@@ -34,7 +34,7 @@ P1 --> U : Kết quả đăng nhập (token, vai trò)\n/ thông báo lỗi
 D1 --> P1 : Tài khoản, mật khẩu băm,\nvai trò, trạng thái khóa
 
 ' ===== 1.2 Quản lý người dùng =====
-A --> P2 : Thông tin người dùng\n(thêm, sửa, xóa/khóa,\nđặt lại mật khẩu)
+A --> P2 : Thông tin người dùng\n(thêm, sửa, khóa,\nđặt lại mật khẩu)
 P2 --> A : Danh sách người dùng,\nkết quả thao tác
 P2 --> D1 : Tài khoản mới /\nđã sửa / đã khóa
 D1 --> P2 : Danh sách người dùng

@@ -24,7 +24,7 @@ Sơ đồ viết bằng PlantUML: [`functional-diagram.puml`](functional-diagram
 | Mã | Chức năng | Mô tả | Vai trò sử dụng |
 |----|-----------|-------|------------------|
 | 1.1 | Đăng nhập / đăng xuất | Xác thực tên đăng nhập, mật khẩu; chuyển người dùng vào đúng giao diện theo vai trò. Hệ thống **không có đăng ký**, tài khoản do Admin cấp. | Admin, Quản lý kho, Nhân viên kho |
-| 1.2 | Quản lý người dùng | Xem, tìm kiếm danh sách; thêm tài khoản mới; sửa thông tin; đặt lại mật khẩu; xóa hoặc khóa tài khoản. | Admin |
+| 1.2 | Quản lý người dùng | Xem, tìm kiếm danh sách; thêm tài khoản mới; sửa thông tin; đặt lại mật khẩu; khóa tài khoản. | Admin |
 | 1.3 | Phân quyền | Gán vai trò (Admin / Quản lý kho / Nhân viên kho) cho từng tài khoản; vai trò quyết định giao diện và chức năng được dùng. | Admin |
 | 2.1 | Quản lý loại sản phẩm | Thêm, sửa, xóa loại sản phẩm (ốp lưng, sạc, cáp, tai nghe…). | Quản lý kho |
 | 2.2 | Quản lý sản phẩm | Thêm, sửa, xóa sản phẩm. | Quản lý kho |
