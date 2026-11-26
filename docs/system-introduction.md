@@ -23,7 +23,7 @@ Hệ thống hỗ trợ các công việc của bộ phận kho:
 
 | Vai trò | Giao diện | Chức năng chính |
 |---------|-----------|-----------------|
-| **Admin** | `/admin` (tách biệt) | Quản lý người dùng: thêm, sửa, xóa; phân quyền |
+| **Admin** | `/admin` (tách biệt) | Quản lý người dùng: thêm, sửa, khóa; phân quyền |
 | **Quản lý kho** | `/manager` | Thêm, sửa, xóa sản phẩm và nhà cung cấp; tìm kiếm, sắp xếp theo sản phẩm, theo nhà cung cấp; in và lưu trữ phiếu nhập kho; xem và thống kê lịch sử nhập kho theo tháng, năm |
 | **Nhân viên kho** | `/staff` | Xem thông tin hàng hóa, số lượng; tìm kiếm; lọc theo giá bán, tên sản phẩm; lập phiếu nhập kho, phiếu xuất kho |
 

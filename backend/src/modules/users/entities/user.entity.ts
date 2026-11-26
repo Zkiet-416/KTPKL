@@ -2,8 +2,6 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  CreateDateColumn,
-  UpdateDateColumn,
   ManyToOne,
   JoinColumn,
   OneToMany,
@@ -41,15 +39,6 @@ export class User {
 
   @Column({ name: 'IsActive', type: 'bit', default: () => '1' })
   isActive!: boolean;
-
-  @Column({ name: 'LastLoginAt', type: 'datetime2', nullable: true })
-  lastLoginAt!: Date | null;
-
-  @CreateDateColumn({ name: 'CreatedAt', type: 'datetime2' })
-  createdAt!: Date;
-
-  @UpdateDateColumn({ name: 'UpdatedAt', type: 'datetime2', nullable: true })
-  updatedAt!: Date | null;
 
   @OneToMany(() => GoodsReceipt, (receipt) => receipt.createdBy)
   goodsReceipts!: GoodsReceipt[];

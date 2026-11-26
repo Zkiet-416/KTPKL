@@ -18,7 +18,7 @@ wbsDiagram {
 * HỆ THỐNG QUẢN LÝ KHO PHỤ KIỆN ĐIỆN THOẠI
 ** 1. Quản trị hệ thống
 *** 1.1 Đăng nhập / đăng xuất
-*** 1.2 Quản lý người dùng (thêm, sửa, xóa/khóa)
+*** 1.2 Quản lý người dùng (thêm, sửa, khóa)
 *** 1.3 Phân quyền (gán vai trò)
 ** 2. Quản lý sản phẩm
 *** 2.1 Quản lý loại sản phẩm
